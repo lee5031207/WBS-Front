@@ -1,8 +1,13 @@
 // src/pages/LoginPage.jsx
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 import { Box, FormControl, FormLabel, Input, Button, Stack, Text } from '@chakra-ui/react';
 
 const LoginPage = () => {
+
+  const navigate = useNavigate(); 
+
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,11 +20,21 @@ const LoginPage = () => {
     
     // 로그인 로직 (API 호출 등)
     try {
-      // 예시로 API 호출하고 JWT 받아오는 코드 (추후 추가)
-      // const response = await axios.post('/api/login', { loginId, password });
-      // 로그인 성공 시 처리 (예: localStorage에 토큰 저장 등)
-      console.log('로그인 성공', loginId, password);
+      
+      const response = await axios.post("http://localhost:8081/api/login",{
+        loginId : loginId,
+        pwd : password,
+      });
+
+      localStorage.setItem('WBS_GRANT_TYPE', response.data.grantType);
+      localStorage.setItem('WBS_ACCESS_TOKEN', response.data.accessToken);
+      localStorage.setItem('WBS_REFRESH_TOKEN', response.data.refreshToken);
+
+      console.log("로그인 성공");
+      navigate("/");
+
     } catch (e) {
+      console.log(e);
       setError('로그인 실패. 다시 시도해주세요.');
     }
   };
@@ -34,7 +49,7 @@ const LoginPage = () => {
             type="text"
             value={loginId}
             onChange={(e) => setLoginId(e.target.value)}
-            placeholder="로그인 ID를 입력하세요"
+            placeholder="ID를 입력하세요"
           />
         </FormControl>
 

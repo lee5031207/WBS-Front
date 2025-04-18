@@ -1,10 +1,13 @@
 import React from "react";
+import Header from "../components/Header";
+import { Divider } from '@chakra-ui/react';
 
 const MainPage = () => {
     return (
-        <div>
-            <h1>메인 페이지</h1>
-        </div>
+        <>
+            <Header />
+            <Divider orientation='horizontal' />
+        </>
     )
 }
 
