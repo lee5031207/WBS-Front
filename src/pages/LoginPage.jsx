@@ -48,7 +48,7 @@ const LoginPage = () => {
     >
       <Box maxWidth="400px" mx="auto" m="auto" p={4} boxShadow="lg" borderRadius="md" border="1px solid #ccc">
         <Stack spacing={4}>
-          <img src="/appLogo.png" alt="PlanSync 로고" width={400} />
+          {/*<img src="/appLogo.png" alt="PlanSync 로고" width={400} />*/}
           <FormControl>
             <FormLabel htmlFor="loginId">로그인 ID</FormLabel>
             <Input

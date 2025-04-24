@@ -13,7 +13,7 @@ import {
 import ProjectCreateModal from "./ProjectCreateModal";
 
 
-const ProjectDrawer = () =>{
+const ProjectDrawer = (props) =>{
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const btnRef = React.useRef();
@@ -21,7 +21,7 @@ const ProjectDrawer = () =>{
     return (
         <>
             <Button bg="brand.200" color="white" _hover={{ bg: 'brand.300' }} ref={btnRef} onClick={onOpen}>
-                Projects
+                {props.name}
             </Button>
             <Drawer
                 isOpen={isOpen}
