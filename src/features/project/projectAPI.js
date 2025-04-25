@@ -19,3 +19,35 @@ export const createProjectAPI = async (data) => {
         throw error;
     }
 }
+
+export const getProjectListAPI = async () => {
+    try{
+        const response = await axios.get(BASE_URL, {
+            headers:{
+                "Authorization" : token,
+                "Content-Type" : "application/json"
+            }
+        })
+        console.log(response);
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+export const getProjectInfoAPI = async (id) => {
+    try{
+        const response = await axios.get(`${BASE_URL}/${id}`, {
+            headers:{
+                "Authorization" : token,
+                "Content-Type" : "application/json"
+            }
+        })
+        console.log(response);
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}

@@ -13,9 +13,9 @@ import { AddIcon } from '@chakra-ui/icons';
 import { ko } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { createProjectAPI } from './projectAPI';
+import { createProjectAPI } from './ProjectAPI';
 
-const ProjectCreateModal = () => {
+const ProjectCreateForm = ({ onCreate }) => {
 
     const { isOpen, onOpen, onClose } = useDisclosure();
     const toast = useToast();
@@ -82,6 +82,7 @@ const ProjectCreateModal = () => {
                     position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
                 })
                 closeModal();
+                onCreate();
             }
 
         }catch(error){
@@ -99,10 +100,11 @@ const ProjectCreateModal = () => {
 
     return (
         <>
-        <Button size='xs' ml='5' onClick={onOpen}>
-            <AddIcon/>
+        <Button size='xs' onClick={onOpen}>
+            <p>프로젝트 생성</p>
+            <AddIcon ml='2' />
         </Button>
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={closeModal}>
             <ModalOverlay />
             <ModalContent>
             <ModalHeader>프로젝트 생성</ModalHeader>
@@ -168,4 +170,4 @@ const ProjectCreateModal = () => {
     )
 }
 
-export default ProjectCreateModal
+export default ProjectCreateForm
