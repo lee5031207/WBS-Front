@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { getToken } from '../../utils/token';
+import { getToken } from "../../../utils/token";
 
-const BASE_URL = 'http://localhost:8081/api/projects';
 const token = getToken();
 
-export const createProjectAPI = async (data) => {
+export const createPartAPI = async (data, projectId) => {
     try{
+        const BASE_URL = `http://localhost:8081/api/projects/${projectId}/parts`;
         const response = await axios.post(BASE_URL, data, {
             headers:{
                 "Authorization" : token,
@@ -22,8 +22,9 @@ export const createProjectAPI = async (data) => {
     }
 }
 
-export const getProjectListAPI = async () => {
+export const getPartListAPI = async (projectId) => {
     try{
+        const BASE_URL = `http://localhost:8081/api/projects/${projectId}/parts`;
         const response = await axios.get(BASE_URL, {
             headers:{
                 "Authorization" : token,
@@ -40,9 +41,10 @@ export const getProjectListAPI = async () => {
     }
 }
 
-export const getProjectInfoAPI = async (id) => {
+export const getPartDetailAPI = async (projectId, partId) =>{
     try{
-        const response = await axios.get(`${BASE_URL}/${id}`, {
+        const BASE_URL = `http://localhost:8081/api/projects/${projectId}/parts/${partId}`;
+        const response = await axios.get(BASE_URL, {
             headers:{
                 "Authorization" : token,
                 "Content-Type" : "application/json"
@@ -57,3 +59,4 @@ export const getProjectInfoAPI = async (id) => {
         throw error;
     }
 }
+

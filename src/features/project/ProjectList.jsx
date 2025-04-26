@@ -21,11 +21,11 @@ import {
 import { MdCheckCircle, MdSettings, MdOutlineSell } from "react-icons/md";
 import ProjectCreateForm from "./ProjectCreateForm";
 import { HamburgerIcon,  } from "@chakra-ui/icons";
-import { getProjectListAPI } from "./ProjectAPI";
+import { getProjectListAPI } from "./projectAPI";
 
 
 
-const ProjectList = (props) =>{
+const ProjectList = () =>{
 
     const navigate = useNavigate(); 
 

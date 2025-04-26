@@ -13,7 +13,7 @@ import { AddIcon } from '@chakra-ui/icons';
 import { ko } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { createProjectAPI } from './ProjectAPI';
+import { createProjectAPI } from './projectAPI';
 
 const ProjectCreateForm = ({ onCreate }) => {
 
@@ -94,7 +94,6 @@ const ProjectCreateForm = ({ onCreate }) => {
                 isClosable: true,   // 닫기 버튼 있음
                 position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
             })
-            
         }
     }
 
