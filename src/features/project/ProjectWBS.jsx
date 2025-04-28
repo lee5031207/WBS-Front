@@ -1,7 +1,7 @@
-const ProjectInfo = () => {
+const ProjectWBS = () => {
     return (
         <>프로젝트 WBS</>
     )
 }
 
-export default ProjectInfo;
+export default ProjectWBS;
