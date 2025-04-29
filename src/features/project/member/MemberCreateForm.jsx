@@ -14,12 +14,11 @@ import { Card, CardHeader, CardBody, CardFooter, Heading,
 import { AddIcon } from "@chakra-ui/icons";
 import { MdCheckCircle, MdSettings, MdOutlineSell } from "react-icons/md";
 import { searchUserAPI } from '../../user/userAPI';
-import { getRoles } from '../../../utils/commonUtils';
+import { getProjectRoles } from '../../../utils/commonUtils';
+import { createMemberAPI } from './memberAPI';
 
-const MemberCreateForm = () => {
-
-    let enterPressed = false;
-
+const MemberCreateForm = ({projectId, onCreate}) => {
+    
     const { isOpen, onOpen, onClose } = useDisclosure();
     const toast = useToast();
 
@@ -27,7 +26,7 @@ const MemberCreateForm = () => {
     const [searchUserList, setSearchUserList] = useState([]);
     const [createMemberList, setCreateMemberList] = useState([]);
 
-    const roles = getRoles();
+    const projectRoles = getProjectRoles();
 
     const closeModal = async() => {
         onClose();
@@ -44,7 +43,7 @@ const MemberCreateForm = () => {
         
         if(response.data){
             setSearchUserList(response.data);
-            if(response.data.length == 0){
+            if(response.data.length === 0){
                 toast({
                     title: "사용자 검색",
                     description: "사용자 검색 결과가 없습니다.",
@@ -58,9 +57,7 @@ const MemberCreateForm = () => {
     }
 
     const setCreateMember = async (elm) => {
-
         const isDuplicate = createMemberList.some(member => member.userId === elm.userId);
-
         if(!isDuplicate){
             setCreateMemberList(prevList => [...prevList, elm]);
         }else{
@@ -73,7 +70,68 @@ const MemberCreateForm = () => {
                 position: "bottom"
             });
         }
+    }
+
+    const createMember = async () => {
         
+        const data = [];
+
+        try{
+            createMemberList.forEach((elm) => {
+                console.log(elm);
+                let member = {};
+                member.userId = elm.userId;
+                if(!elm.projectRole){
+                    throw new Error(elm.userNm+" 역할 지정 필요." );
+                }
+                member.projectRole = elm.projectRole;
+                data.push(member);
+            })
+        }catch(error){
+            toast({
+                title: "프로젝트 멤버 에러",
+                description: error.message,
+                status: 'error',
+                duration: 3000,     // 3초 후 사라짐
+                isClosable: true,   // 닫기 버튼 있음
+                position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
+            })
+            return;
+        }
+        
+        try{
+            const response = await createMemberAPI(data, projectId);
+            if(response.data){
+                toast({
+                    title: "프로젝트 멤버",
+                    description: "프로젝트 멤버 추가 완료" ,
+                    status: 'success',
+                    duration: 3000,     // 3초 후 사라짐
+                    isClosable: true,   // 닫기 버튼 있음
+                    position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
+                });
+                closeModal();
+                onCreate();
+            }
+        }catch(error){
+            toast({
+                title: "프로젝트 멤버",
+                description: "프로젝트 멤버 추가 실패 ["+error.status+"]" ,
+                status: 'error',
+                duration: 3000,     // 3초 후 사라짐
+                isClosable: true,   // 닫기 버튼 있음
+                position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
+            });
+        }
+        
+    }
+
+    const updateMemberRole = async (index, projectRole) => {
+        setCreateMemberList(prevList =>
+            prevList.map((member, memberIdx) =>
+                memberIdx === index ? { ...member, projectRole: projectRole } : member
+            )
+        );
     }
 
     return (
@@ -127,10 +185,11 @@ const MemberCreateForm = () => {
                                                                 {elm.userNm}({elm.teamNm})
                                                             </Box>
                                                             <Box as='span'>
-                                                                <Select placeholder='역할' size="sm">
-                                                                    {roles.map((role, idx)=> {
+                                                                <Select placeholder='-' size="sm"
+                                                                onChange={(e)=> updateMemberRole(idx, e.target.value)}>
+                                                                    {projectRoles.map((projectRole, idx)=> {
                                                                         return (
-                                                                            <option key={idx} value={role}>{role}</option>
+                                                                            <option key={idx} value={projectRole}>{projectRole}</option>
                                                                         )
                                                                     })}
                                                                 </Select>
@@ -147,7 +206,8 @@ const MemberCreateForm = () => {
                             <Button 
                                 bg="brand.200" 
                                 color="white" 
-                                width="100%">
+                                width="100%"
+                                onClick={()=>createMember()}>
                                 프로젝트 멤버 추가
                             </Button>
                             </FormControl>

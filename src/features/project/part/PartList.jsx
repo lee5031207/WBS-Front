@@ -80,7 +80,7 @@ const PartList = ({ parts, projectId }) => {
                                         <div>
                                             {/* 조회한 디테일 데이터 표시 */}
                                             {partMembers[elm.partId].map((member, idx) => (
-                                                <div key={idx} > ＊ {member.user.userNm}({member.user.loginId}) </div>
+                                                <div key={idx} > - {member.user.userNm} ({member.user.teamNm}) </div>
                                             ))}
                                         </div>
                                     ) : (

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card, CardHeader, Flex, Heading, Accordion, AccordionItem, AccordionButton, Box, AccordionIcon, AccordionPanel } from '@chakra-ui/react';
 import MemberCreateForm from "./MemberCreateForm";
+import { getMemberListAPI } from "./memberAPI";
+import MemberInfo from "./MemberInfo";
 
 const MemberList = ({ members, projectId }) => {
 
@@ -12,13 +14,19 @@ const MemberList = ({ members, projectId }) => {
         }
     }, [members]);
 
+    const getMemberList = async () => {
+        const response = await getMemberListAPI(projectId);
+        if(response.data){
+            setMemberList(response.data);
+        }
+    }
 
     return (
         <Card w="25vw" h="80vh">
             <CardHeader>
             <Flex justify="space-between" align="center">
                 <Heading size="md">프로젝트 멤버</Heading>
-                <MemberCreateForm />
+                <MemberCreateForm projectId={projectId} onCreate={getMemberList}/>
             </Flex>
             </CardHeader>
             <Accordion defaultIndex={[0]} allowMultiple>
@@ -27,9 +35,7 @@ const MemberList = ({ members, projectId }) => {
                         <AccordionItem key={idx}>
                             <h2>
                             <AccordionButton>
-                                <Box as="span" flex="1" textAlign="left">
-                                {elm.projectRole} - {elm.user.userNm}
-                                </Box>
+                                <MemberInfo memberInfo={elm}></MemberInfo>
                             </AccordionButton>
                             </h2>
                         </AccordionItem>

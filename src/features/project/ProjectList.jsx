@@ -24,7 +24,6 @@ import { HamburgerIcon,  } from "@chakra-ui/icons";
 import { getProjectListAPI } from "./projectAPI";
 
 
-
 const ProjectList = () =>{
 
     const navigate = useNavigate(); 

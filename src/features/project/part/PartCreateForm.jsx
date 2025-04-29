@@ -64,10 +64,9 @@ const PartCreateForm = ({projectId, onCreate}) => {
             }, projectId);
 
             if(response.data){
-                console.log(response.data);
                 toast({
                     title: "프로젝트 Part 생성 완료",
-                    description: response.data.projectName+" 생성 완료" ,
+                    description: response.data.partNm+" 생성 완료" ,
                     status: 'success',
                     duration: 3000,     // 3초 후 사라짐
                     isClosable: true,   // 닫기 버튼 있음
@@ -88,8 +87,6 @@ const PartCreateForm = ({projectId, onCreate}) => {
             })
         }
     }
-
-
 
     return (
         <>
