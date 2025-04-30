@@ -14,7 +14,7 @@ import { Card, CardHeader, CardBody, CardFooter, Heading,
 import { AddIcon } from "@chakra-ui/icons";
 import { MdCheckCircle, MdSettings, MdOutlineSell } from "react-icons/md";
 import { searchUserAPI } from '../../user/userAPI';
-import { getProjectRoles } from '../../../utils/commonUtils';
+import { getProjectRoles, getProjectRoleKR } from '../../../utils/commonUtils';
 import { createMemberAPI } from './memberAPI';
 
 const MemberCreateForm = ({projectId, onCreate}) => {
@@ -160,7 +160,7 @@ const MemberCreateForm = ({projectId, onCreate}) => {
                                             <AccordionItem key={idx} mb={1}>
                                                 <h2>
                                                     <AccordionButton>
-                                                        <Box as='span' flex='1' textAlign='left'>
+                                                        <Box as='span' flex='1' textAlign='left' fontSize="sm">
                                                             {elm.userNm}({elm.teamNm})
                                                         </Box>
                                                         <Button size="md" bg="white" color="black" _hover={{ bg: 'brand.100' }}
@@ -181,7 +181,7 @@ const MemberCreateForm = ({projectId, onCreate}) => {
                                                 <h2>
                                                     <AccordionButton>
                                                         <Flex justify="space-between" align="center" width="100%">
-                                                            <Box as='span'>
+                                                            <Box as='span' fontSize="sm">
                                                                 {elm.userNm}({elm.teamNm})
                                                             </Box>
                                                             <Box as='span'>
@@ -189,7 +189,7 @@ const MemberCreateForm = ({projectId, onCreate}) => {
                                                                 onChange={(e)=> updateMemberRole(idx, e.target.value)}>
                                                                     {projectRoles.map((projectRole, idx)=> {
                                                                         return (
-                                                                            <option key={idx} value={projectRole}>{projectRole}</option>
+                                                                            <option key={idx} value={projectRole}>{getProjectRoleKR(projectRole)}</option>
                                                                         )
                                                                     })}
                                                                 </Select>

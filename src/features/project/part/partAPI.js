@@ -12,7 +12,7 @@ export const createPartAPI = async (data, projectId) => {
                 "Content-Type" : "application/json"
             }
         })
-        console.log("=====API RESULT=====")
+        console.log("=====createPartAPI RESULT=====")
         console.log(response);
         console.log("====================")
         return response;
@@ -31,7 +31,7 @@ export const getPartListAPI = async (projectId) => {
                 "Content-Type" : "application/json"
             }
         })
-        console.log("=====API RESULT=====")
+        console.log("=====getPartListAPI RESULT=====")
         console.log(response);
         console.log("====================")
         return response;
@@ -50,7 +50,7 @@ export const getPartDetailAPI = async (projectId, partId) =>{
                 "Content-Type" : "application/json"
             }
         })
-        console.log("=====API RESULT=====")
+        console.log("=====getPartDetailAPI RESULT=====")
         console.log(response);
         console.log("====================")
         return response;

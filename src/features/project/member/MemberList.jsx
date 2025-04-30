@@ -35,7 +35,12 @@ const MemberList = ({ members, projectId }) => {
                         <AccordionItem key={idx}>
                             <h2>
                             <AccordionButton>
-                                <MemberInfo memberInfo={elm}></MemberInfo>
+                                <MemberInfo 
+                                    userNm={elm.user.userNm} 
+                                    teamNm={elm.user.teamNm}
+                                    projectId={projectId}
+                                    prjMemId={elm.prjMemId}
+                                />
                             </AccordionButton>
                             </h2>
                         </AccordionItem>

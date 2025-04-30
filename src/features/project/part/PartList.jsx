@@ -45,7 +45,6 @@ const PartList = ({ parts, projectId }) => {
                 [partId]: response.data.projectMembers, // 받아온 데이터 저장
             }));
         }
-
     }
 
     return (
