@@ -22,7 +22,7 @@ import { getMemberDetailAPI, updateMemberAPI } from "./memberAPI";
 import { getProjectRoles, getProjectRoleKR } from "../../../utils/commonUtils";
 import { getPartListAPI } from "../part/partAPI";
 
-const MemberInfo = ( {userNm, teamNm, projectId, prjMemId} ) => {
+const MemberInfo = ( {userNm, teamNm, projectId, prjMemId, onUpdate} ) => {
 
     const projectRoles = getProjectRoles();
 
@@ -96,7 +96,7 @@ const MemberInfo = ( {userNm, teamNm, projectId, prjMemId} ) => {
                     position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
                 })
                 setMemberInfo(response.data);
-                //TODO : 업데이트 후 프로젝트Part에 MemberList를 update해줘야함..
+                onUpdate();
                 closeModal();
             }
 

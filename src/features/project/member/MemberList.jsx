@@ -2,22 +2,26 @@ import { useState, useEffect } from "react";
 import { Card, CardHeader, Flex, Heading, Accordion, AccordionItem, AccordionButton, Box, AccordionIcon, AccordionPanel } from '@chakra-ui/react';
 import MemberCreateForm from "./MemberCreateForm";
 import { getMemberListAPI } from "./memberAPI";
+import { getPartListAPI } from "../part/partAPI";
 import MemberInfo from "./MemberInfo";
 
-const MemberList = ({ members, projectId }) => {
+const MemberList = ({ members, onCreateMember, onUpdateMember, projectId }) => {
 
-    const [memberList, setMemberList] = useState(members || []);
-
-    useEffect(() => {
-        if (members) {
-            setMemberList(members);
+    const getMemberList = async() => {
+        try{
+            const response = await getMemberListAPI(projectId)
+            onCreateMember(response.data);
+        }catch(error){
+            console.log(error);
         }
-    }, [members]);
+    }
 
-    const getMemberList = async () => {
-        const response = await getMemberListAPI(projectId);
-        if(response.data){
-            setMemberList(response.data);
+    const getPartList = async () => {
+        try{
+            const response = await getPartListAPI(projectId)
+            onUpdateMember(response.data);
+        }catch(error){
+            console.log(error);
         }
     }
 
@@ -30,16 +34,17 @@ const MemberList = ({ members, projectId }) => {
             </Flex>
             </CardHeader>
             <Accordion defaultIndex={[0]} allowMultiple>
-                {memberList.map((elm, idx) => {
+                {members.map((member, idx) => {
                     return (
-                        <AccordionItem key={idx}>
+                        <AccordionItem key={member.prjMemId}>
                             <h2>
                             <AccordionButton>
                                 <MemberInfo 
-                                    userNm={elm.user.userNm} 
-                                    teamNm={elm.user.teamNm}
+                                    userNm={member.user.userNm} 
+                                    teamNm={member.user.teamNm}
                                     projectId={projectId}
-                                    prjMemId={elm.prjMemId}
+                                    prjMemId={member.prjMemId}
+                                    onUpdate={getPartList}
                                 />
                             </AccordionButton>
                             </h2>

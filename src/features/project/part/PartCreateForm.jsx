@@ -123,7 +123,7 @@ const PartCreateForm = ({projectId, onCreate}) => {
                     color="white" 
                     width={400}
                     onClick={createPart}>
-                    프로젝트 생성
+                    프로젝트 Part 생성
                 </Button>
                 </FormControl>
             </Stack>

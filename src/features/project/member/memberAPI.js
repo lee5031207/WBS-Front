@@ -63,9 +63,6 @@ export const getMemberDetailAPI = async (projectId, prjMemId) => {
 export const updateMemberAPI = async (projectId, prjMemId, data) => {
     try{
         const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members/${prjMemId}`;
-        console.log(BASE_URL);
-        console.log("PATCH DATA ===>", data);
-        console.log(JSON.stringify(data));
         const response = await axios.patch(BASE_URL, data, {
             headers:{
                 "Authorization" : token,

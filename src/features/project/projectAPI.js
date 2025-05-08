@@ -12,7 +12,7 @@ export const createProjectAPI = async (data) => {
                 "Content-Type" : "application/json"
             }
         })
-        console.log("=====API RESULT=====")
+        console.log("=====createProjectAPI RESULT=====")
         console.log(response);
         console.log("====================")
         return response;
@@ -30,7 +30,7 @@ export const getProjectListAPI = async () => {
                 "Content-Type" : "application/json"
             }
         })
-        console.log("=====API RESULT=====")
+        console.log("=====getProjectListAPI RESULT=====")
         console.log(response);
         console.log("====================")
         return response;
@@ -48,7 +48,7 @@ export const getProjectInfoAPI = async (id) => {
                 "Content-Type" : "application/json"
             }
         })
-        console.log("=====API RESULT=====")
+        console.log("=====getProjectInfoAPI RESULT=====")
         console.log(response);
         console.log("====================")
         return response;
