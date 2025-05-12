@@ -57,3 +57,22 @@ export const getProjectInfoAPI = async (id) => {
         throw error;
     }
 }
+
+export const getWbsDateInfo = async (id) => {
+    try{
+        const response = await axios.get(`${BASE_URL}/${id}/wbs/date-info`, {
+            headers:{
+                "Authorization" : token,
+                "Content-Type" : "application/json"
+            }
+        })
+        console.log("=====getWbsDateInfo RESULT=====")
+        console.log(response);
+        console.log("====================")
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+

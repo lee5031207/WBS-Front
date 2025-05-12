@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { HotTable, HotColumn } from '@handsontable/react-wrapper';
 import Handsontable from 'handsontable';
 import { registerAllModules } from 'handsontable/registry';
@@ -10,8 +10,6 @@ import { getWbsDateInfo } from "./projectAPI";
 registerAllModules();
 
 const ProjectWBS = ({projectId}) => {
-
-  const hotTableRef = useRef(null);
 
   //화면 표시 용
   const [saturdayCols, setSaturdayCols] = useState([]);
@@ -81,17 +79,18 @@ const ProjectWBS = ({projectId}) => {
   }, [projectId]);
 
   const setNestedHeaders = async (data) => {
-    const weekExtras = data.weeks.map(element => ({
-      label: element.label,
-      colspan: element.dateCnt
-    }));
-  
-    const dateExtras = data.dates.map(element => ({
-      label: element.date.substring(8, 10)
-    }));
-  
-    setWeekHeaders(prev => [...prev, ...weekExtras]);
-    setDateHeaders(prev => [...prev, ...dateExtras]);
+    data.weeks.forEach(element => {
+      setWeekHeaders(prev => [...prev, ...[{ 
+        label : element.label,
+        colspan : element.dateCnt
+      }]]);        
+    });
+
+    data.dates.forEach(element => {
+      setDateHeaders(prev => [...prev, ...[{
+        label : element.date.substring(8,10)
+      }]])
+    });
   }
 
   const setWeekEndCols = async (data) => {
@@ -128,61 +127,60 @@ const ProjectWBS = ({projectId}) => {
 
   return (
     <HotTable
-      ref={hotTableRef}
       data={[
         {
-          taskId: '123',
+          id: '123',
           depth: 0,
-          taskNm: '서버 구축(Linux, CentOs)',
-          charge: '이성욱',
+          task: '서버 구축(Linux, CentOs)',
+          owner: '이성욱',
           part: '공통',
-          planStartDt: '2025-05-08',
-          planEndDt: '2025-05-23',
+          planStart: '2025-04-12',
+          planEnd: '2025-05-12',
           planProgress: '50%',
-          realStartDt: '2025-04-12',
-          realEndDt: '2025-05-12',
+          realStart: '2025-04-12',
+          realEnd: '2025-05-12',
           realProgress: '50%',
           weight : '5',
           __children: [
             {
-              taskId: '123',
+              id: '123',
               depth: 1,
-              taskNm: '서버 설치 및 기초 설정',
-              charge: '이성욱',
+              task: '서버 설치 및 기초 설정',
+              owner: '이성욱',
               part: '공통',
-              planStartDt: '2025-05-12',
-              planEndDt: '2025-05-14',
+              planStart: '2025-04-12',
+              planEnd: '2025-05-12',
               planProgress: '50%',
-              realStartDt: '2025-04-12',
-              realEndDt: '2025-05-12',
+              realStart: '2025-04-12',
+              realEnd: '2025-05-12',
               realProgress: '50%',
               weight : '2',
               __children : [
                 {
-                  taskId: '123',
+                  id: '123',
                   depth: 2,
-                  taskNm: '서버 설치 및 기초 설정2',
-                  charge: '이성욱',
+                  task: '서버 설치 및 기초 설정2',
+                  owner: '이성욱',
                   part: '공통',
-                  planStartDt: '2025-04-12',
-                  planEndDt: '2025-05-12',
+                  planStart: '2025-04-12',
+                  planEnd: '2025-05-12',
                   planProgress: '50%',
-                  realStartDt: '2025-04-12',
-                  realEndDt: '2025-05-12',
+                  realStart: '2025-04-12',
+                  realEnd: '2025-05-12',
                   realProgress: '50%',
                   weight : '1'
                 },
                 {
-                  taskId: '123',
+                  id: '123',
                   depth: 2,
-                  taskNm: '서버 설치 및 기초 설정2',
-                  charge: '이성욱',
+                  task: '서버 설치 및 기초 설정2',
+                  owner: '이성욱',
                   part: '공통',
-                  planStartDt: '2025-04-12',
-                  planEndDt: '2025-05-12',
+                  planStart: '2025-04-12',
+                  planEnd: '2025-05-12',
                   planProgress: '50%',
-                  realStartDt: '2025-04-12',
-                  realEndDt: '2025-05-12',
+                  realStart: '2025-04-12',
+                  realEnd: '2025-05-12',
                   realProgress: '50%',
                   weight : '1'
                 }
@@ -222,26 +220,17 @@ const ProjectWBS = ({projectId}) => {
       colWidths={[80,80,300,80,80,100,100,100,100,100,100,50]}
       cells={(row, col) => {
         const cellProperties = {};
-
-        const instance = hotTableRef.current?.hotInstance;
-        if (!instance) return cellProperties; // 인스턴스 없으면 빠져나감
-
-        const rowData = instance.getSourceDataAtRow(row);
-
-        //depth 기준 들여쓰기
         if (col === 2) {
+          // 2번 열(업무명)에만 들여쓰기 적용
           cellProperties.renderer = indentRenderer;
         }
 
-        const dateCol = columns[col]?.data;
-        const planStart = rowData.planStartDt;
-        const planEnd = rowData.planEndDt;
+        if (row === 2 && (col>=15 && col<24)) {
+          cellProperties.renderer = highlightRenderer;
+        }
 
-        // 날짜 컬럼이고, 해당 날짜가 계획 범위에 포함되면
-        if (/\d{4}-\d{2}-\d{2}/.test(dateCol)) {
-          if (dateCol >= planStart && dateCol <= planEnd) {
-            cellProperties.renderer = highlightRenderer;
-          }
+        if (row === 3 && (col>=17 && col<26)) {
+          cellProperties.renderer = highlightRenderer;
         }
         
         return cellProperties;
