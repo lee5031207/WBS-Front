@@ -1,0 +1,28 @@
+/* src/styles/pikaday.css */
+.pika-single {
+    font-family: 'Pretendard', sans-serif;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.pika-table td.is-today {
+    background-color: #c6d7eb;
+    color: white;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+.pika-table td:hover {
+    background-color: #eee;
+}
+
+/* pikaday 달력 내에서 요일 위치 기준: 0 = 일요일, 6 = 토요일 */
+.pika-row td:nth-child(1) button {  /* 일요일 */
+    color: red !important;
+}
+
+.pika-row td:nth-child(7) button {  /* 토요일 */
+    color: blue !important;
+}
+  
+  

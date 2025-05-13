@@ -4,7 +4,10 @@ import Handsontable from 'handsontable';
 import { registerAllModules } from 'handsontable/registry';
 import 'handsontable/styles/handsontable.css';
 import 'handsontable/styles/ht-theme-main.css';
-import { getWbsDateInfo } from "./projectAPI";
+import { getWbsData, getWbsDateInfo } from "./wbs/wbsAPI";
+import '../../theme/pikaday.css';
+import { getMemberListAPI } from "./member/memberAPI";
+import { updateTaskAPI } from "./task/taskAPI";
 
 // register Handsontable's modules
 registerAllModules();
@@ -16,62 +19,36 @@ const ProjectWBS = ({projectId}) => {
   //화면 표시 용
   const [saturdayCols, setSaturdayCols] = useState([]);
   const [sundayCols, setSundayCols] = useState([]);
-
-  const [weekHeaders, setWeekHeaders] = useState([
-    { label: '', rowspan: 2 },
-    { label: '', rowspan: 2 },
-    { label: '', rowspan: 2 },
-    { label: '', rowspan: 2 },
-    { label: '', rowspan: 2 },
-    { label: '계획', colspan: 3 },
-    { label: '실적', colspan: 3 },
-    { label: '', rowspan: 2 }
-  ]);
-
-  const [dateHeaders, setDateHeaders] = useState([
-    { label: '작업 ID' },
-    { label: 'Depth' },
-    { label: '작업 명' },
-    { label: '담당자' },
-    { label: '파트 명' },
-    { label: '시작일' },
-    { label: '종료일' },
-    { label: '진행율' },
-    { label: '시작일' },
-    { label: '종료일' },
-    { label: '진행율' },
-    { label: '가중치' }
-  ]);
-
-  //columns 지정
-  const [columns, setColumns] = useState([
-    { data: 'taskId' },
-    { data: 'depth' },
-    { data: 'taskNm' },
-    { data: 'charge' },
-    { data: 'part' },
-    { data: 'planStartDt' },
-    { data: 'planEndDt' },
-    { data: 'planProgress' },
-    { data: 'realStartDt' },
-    { data: 'realEndDt' },
-    { data: 'realProgress' },
-    { data: 'weight' }
-  ]);
-
+  const [weekHeaders, setWeekHeaders] = useState([]);
+  const [dateHeaders, setDateHeaders] = useState([]);
+  const [columns, setColumns] = useState([]);
+  const [wbsData, setWbsData] = useState([]);
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [headerRes] = await Promise.all(
+        const [headerRes, wbsRes, memberRes] = await Promise.all(
           [
-            getWbsDateInfo(projectId)
+            getWbsDateInfo(projectId),
+            getWbsData(projectId),
+            getMemberListAPI(projectId)
           ]
-        )
+        );
+        //console.log("📦 wbsRes", JSON.stringify(wbsRes.data, null, 2)); 
+
         if(headerRes.data){
           await setNestedHeaders(headerRes.data);
           await setWeekEndCols(headerRes.data);
-          await setCols(headerRes.data);
+
+          if(memberRes.data){
+            await setCols(headerRes.data, memberRes.data);
+          }
         }
+
+        if(wbsRes.data){
+          await setWbsData(wbsRes.data);
+        }
+
       } catch (error) {
         console.error(error);
       }
@@ -81,6 +58,33 @@ const ProjectWBS = ({projectId}) => {
   }, [projectId]);
 
   const setNestedHeaders = async (data) => {
+
+    const fixedWeekHeaders = [
+      { label: '', rowspan: 2 },
+      { label: '', rowspan: 2 },
+      { label: '', rowspan: 2 },
+      { label: '', rowspan: 2 },
+      { label: '', rowspan: 2 },
+      { label: '계획', colspan: 3 },
+      { label: '실적', colspan: 3 },
+      { label: '', rowspan: 2 }
+    ];
+
+    const fixedDateHeaders = [
+      { label: '작업 ID' },
+      { label: 'Depth' },
+      { label: '작업 명' },
+      { label: '담당자' },
+      { label: '파트 명' },
+      { label: '시작일' },
+      { label: '종료일' },
+      { label: '진행률(%)' },
+      { label: '시작일' },
+      { label: '종료일' },
+      { label: '진행률(%)' },
+      { label: '가중치' }
+    ];
+
     const weekExtras = data.weeks.map(element => ({
       label: element.label,
       colspan: element.dateCnt
@@ -90,8 +94,8 @@ const ProjectWBS = ({projectId}) => {
       label: element.date.substring(8, 10)
     }));
   
-    setWeekHeaders(prev => [...prev, ...weekExtras]);
-    setDateHeaders(prev => [...prev, ...dateExtras]);
+    setWeekHeaders([...fixedWeekHeaders, ...weekExtras]);
+    setDateHeaders([...fixedDateHeaders, ...dateExtras]);
   }
 
   const setWeekEndCols = async (data) => {
@@ -104,12 +108,76 @@ const ProjectWBS = ({projectId}) => {
     });
   }
 
-  const setCols = async (data) => {
-    data.dates.forEach(element => {
-      setColumns(prev => [...prev, ...[{
-        data : element.date
-      }]])
-    });
+  const setCols = async (dateData, memberData) => {
+
+    const source = [];
+
+    memberData.forEach((elm, idx)=>{
+      source.push(elm.user.userNm);
+    })
+
+
+    const fixedColumns = [
+      { data: 'taskId', readOnly: true },
+      { data: 'depth' },
+      { data: 'taskNm' },
+      { 
+        data: 'charge' ,
+        type: 'dropdown',
+        source: source
+      },
+      { data: 'partNm', editor: false },
+      { 
+        data: 'planStartDt',
+        type: 'date',
+        dateFormat: 'YYYY-MM-DD',
+        correctFormat: true,
+        defaultDate: '2025-01-01',
+        datePickerConfig: {
+          firstDay: 0
+        }
+      },
+      { 
+        data: 'planEndDt',
+        type: 'date',
+        dateFormat: 'YYYY-MM-DD',
+        correctFormat: true,
+        defaultDate: '2025-01-01',
+        datePickerConfig: {
+          firstDay: 0
+        }
+      },
+      { data: 'planProgress', readOnly: true },
+      { 
+        data: 'realStartDt',
+        type: 'date',
+        dateFormat: 'YYYY-MM-DD',
+        correctFormat: true,
+        defaultDate: '2025-01-01',
+        datePickerConfig: {
+          firstDay: 0
+        }
+      },
+      { 
+        data: 'realEndtDt',
+        type: 'date',
+        dateFormat: 'YYYY-MM-DD',
+        correctFormat: true,
+        defaultDate: '2025-01-01',
+        datePickerConfig: {
+          firstDay: 0
+        }
+      },
+      { data: 'realProgress', readOnly: true },
+      { data: 'weight', type: 'numeric' }
+    ]
+
+    const columnsExtras = dateData.dates.map(element => ({
+      data : element.date,
+      readOnly: true
+    }));
+
+    setColumns([...fixedColumns, ...columnsExtras]);
   }
 
   function indentRenderer(instance, td, row, col, prop, value, cellProperties){
@@ -118,136 +186,103 @@ const ProjectWBS = ({projectId}) => {
     const rowData = instance.getDataAtRow(row);
     const depth = parseInt(rowData[1] || 0, 10);
     td.style.paddingLeft = `${5+ (depth * 20)}px`; // depth 1당 20px 들여쓰기
+    td.className = "ht-theme-main htLeft"
   }
 
+  //간트차트 색칠하기
   function highlightRenderer(instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
     td.style.backgroundColor = '#48A6A7'; // 여기선 !important 필요 없음
   }
-  
+  function highlightRemoveRenderer(instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.renderers.TextRenderer.apply(this, arguments);
+    td.style.backgroundColor = '#FFFFFF'; // 여기선 !important 필요 없음
+  }
 
   return (
-    <HotTable
-      ref={hotTableRef}
-      data={[
-        {
-          taskId: '123',
-          depth: 0,
-          taskNm: '서버 구축(Linux, CentOs)',
-          charge: '이성욱',
-          part: '공통',
-          planStartDt: '2025-05-08',
-          planEndDt: '2025-05-23',
-          planProgress: '50%',
-          realStartDt: '2025-04-12',
-          realEndDt: '2025-05-12',
-          realProgress: '50%',
-          weight : '5',
-          __children: [
-            {
-              taskId: '123',
-              depth: 1,
-              taskNm: '서버 설치 및 기초 설정',
-              charge: '이성욱',
-              part: '공통',
-              planStartDt: '2025-05-12',
-              planEndDt: '2025-05-14',
-              planProgress: '50%',
-              realStartDt: '2025-04-12',
-              realEndDt: '2025-05-12',
-              realProgress: '50%',
-              weight : '2',
-              __children : [
-                {
-                  taskId: '123',
-                  depth: 2,
-                  taskNm: '서버 설치 및 기초 설정2',
-                  charge: '이성욱',
-                  part: '공통',
-                  planStartDt: '2025-04-12',
-                  planEndDt: '2025-05-12',
-                  planProgress: '50%',
-                  realStartDt: '2025-04-12',
-                  realEndDt: '2025-05-12',
-                  realProgress: '50%',
-                  weight : '1'
-                },
-                {
-                  taskId: '123',
-                  depth: 2,
-                  taskNm: '서버 설치 및 기초 설정2',
-                  charge: '이성욱',
-                  part: '공통',
-                  planStartDt: '2025-04-12',
-                  planEndDt: '2025-05-12',
-                  planProgress: '50%',
-                  realStartDt: '2025-04-12',
-                  realEndDt: '2025-05-12',
-                  realProgress: '50%',
-                  weight : '1'
-                }
-              ]
+    wbsData.length > 0 && (
+      <HotTable
+        ref={hotTableRef}
+        data={wbsData}
+        rowHeaders={true}
+        rowHeaderWidth={100}
+        colHeaders={false}
+        hiddenColumns={{
+          columns: [1],
+          indicators: false,
+        }}
+        columns = {columns}
+        nestedHeaders={[weekHeaders, dateHeaders]}
+        nestedRows={true}
+        afterGetColHeader={(col, TH, headerLevel) => {
+          if(headerLevel === 1){
+            if (sundayCols.includes(col)) {
+              TH.style.backgroundColor = '#fdd'; // 연한 빨강
+              TH.style.color = '#d00'; // 진한 빨강 글씨
             }
-          ]
-        }
-      ]}
-      rowHeaders={true}
-      rowHeaderWidth={100}
-      colHeaders={false}
-      hiddenColumns={{
-        columns: [1],
-        indicators: false,
-      }}
-      columns = {columns}
-      nestedHeaders={[weekHeaders, dateHeaders]}
-      nestedRows={true}
-      afterGetColHeader={(col, TH, headerLevel) => {
-        if(headerLevel === 1){
-          if (sundayCols.includes(col)) {
-            TH.style.backgroundColor = '#fdd'; // 연한 빨강
-            TH.style.color = '#d00'; // 진한 빨강 글씨
-          }
-      
-          if (saturdayCols.includes(col)) {
-            TH.style.backgroundColor = '#ddf'; // 연한 파랑
-            TH.style.color = '#00f'; // 진한 파랑 글씨
-          }
-        }
-      }}
-      height="auto"
-      autoWrapRow={true}
-      autoWrapCol={true}
-      licenseKey="non-commercial-and-evaluation" // for non-commercial use only
-      className="ht-theme-main"
-      colWidths={[80,80,300,80,80,100,100,100,100,100,100,50]}
-      cells={(row, col) => {
-        const cellProperties = {};
-
-        const instance = hotTableRef.current?.hotInstance;
-        if (!instance) return cellProperties; // 인스턴스 없으면 빠져나감
-
-        const rowData = instance.getSourceDataAtRow(row);
-
-        //depth 기준 들여쓰기
-        if (col === 2) {
-          cellProperties.renderer = indentRenderer;
-        }
-
-        const dateCol = columns[col]?.data;
-        const planStart = rowData.planStartDt;
-        const planEnd = rowData.planEndDt;
-
-        // 날짜 컬럼이고, 해당 날짜가 계획 범위에 포함되면
-        if (/\d{4}-\d{2}-\d{2}/.test(dateCol)) {
-          if (dateCol >= planStart && dateCol <= planEnd) {
-            cellProperties.renderer = highlightRenderer;
-          }
-        }
         
-        return cellProperties;
-      }}
-    >
-    </HotTable>
+            if (saturdayCols.includes(col)) {
+              TH.style.backgroundColor = '#ddf'; // 연한 파랑
+              TH.style.color = '#00f'; // 진한 파랑 글씨
+            }
+          }
+        }}
+        height="auto"
+        autoWrapRow={true}
+        autoWrapCol={true}
+        licenseKey="non-commercial-and-evaluation" // for non-commercial use only
+        className="ht-theme-main htCenter"
+        colWidths={[65,10,300,100,100,120,120,80,120,120,80,50]}
+        afterChange={(changes, source) => {
+          if (source === 'edit' && changes){
+            const hot = hotTableRef.current.hotInstance;
+
+            changes?.forEach(([row, prop, oldValue, newValue]) => {
+              if(oldValue != newValue){
+                const visibleRowData = hot.getDataAtRow(row);
+                const taskId = visibleRowData[0]; //taskId 0번
+
+                const data = {
+                  taskId : taskId,
+                  [prop] : newValue
+                }
+                
+                const response = updateTaskAPI(projectId, data);
+                console.log(response.data);
+              }
+            });
+          }
+        }}
+        cells={(row, col) => {
+          const cellProperties = {};
+
+          const instance = hotTableRef.current?.hotInstance;
+          if (!instance) return cellProperties; // 인스턴스 없으면 return
+
+          const rowData = instance.getSourceDataAtRow(row);
+          if (!rowData) return cellProperties;  // Data조회 전 return
+
+          //1. depth 기준 들여쓰기
+          if (col === 2) {
+            cellProperties.renderer = indentRenderer;
+          }
+
+          //2. WBS 날짜 색칠 
+          //TO-DO : 계획, 실제 RADIO 버튼 생성
+          const dateCol = columns[col]?.data;
+          const planStart = rowData.planStartDt;
+          const planEnd = rowData.planEndDt;
+          if (/\d{4}-\d{2}-\d{2}/.test(dateCol)) {
+            if (dateCol >= planStart && dateCol <= planEnd) {
+              cellProperties.renderer = highlightRenderer;
+            }else{
+              cellProperties.renderer = highlightRemoveRenderer;
+            }
+          }
+          return cellProperties;
+        }}
+      />
+    )
   );
 };
 
