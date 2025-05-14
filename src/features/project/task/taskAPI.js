@@ -15,6 +15,25 @@ export const updateTaskAPI = async (projectId, data) => {
         console.log("=====updateTaskAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+export const createTaskAPI = async (projectId, data) => {
+    try{
+        const response = await axios.post(`${BASE_URL}/${projectId}/tasks`, data, {
+            headers:{
+                "Authorization" : token,
+                "Content-Type" : "application/json"
+            }
+        })
+        console.log("=====createTaskAPI RESULT=====")
+        console.log(response);
+        console.log("====================")
+        return response;
     }catch(error){
         console.log(error);
         throw error;

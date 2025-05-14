@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+/* Handsontable 에디터 셀 안쪽 overflow 해제 */
+.ht_clone_editor {
+  overflow: visible !important;
+  z-index: 9999 !important;
+}
+
+/* 테이블 및 컨테이너가 자식 요소 가리는 것 방지 */
+.handsontable,
+.hot-container {
+  overflow: visible !important;
+}
+
+.handsontable {
+  font-family: 'Pretendard', 'Noto Sans KR', 'Arial', sans-serif;
+  font-size: 12px;  /* 원하는 크기로 */
+}
+
