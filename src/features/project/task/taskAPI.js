@@ -39,3 +39,21 @@ export const createTaskAPI = async (projectId, data) => {
         throw error;
     }
 }
+
+export const getTaskDscendantsAPI = async (projectId, taskId) => {
+    try{
+        const response = await axios.get(`${BASE_URL}/${projectId}/tasks/${taskId}/descendants`, {
+            headers:{
+                "Authorization" : token,
+                "Content-Type" : "application/json"
+            }
+        })
+        console.log("=====getTaskDscendantsAPI RESULT=====")
+        console.log(response);
+        console.log("====================")
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}

@@ -7,11 +7,23 @@ import 'handsontable/styles/ht-theme-main.css';
 import { getWbsData, getWbsDateInfo } from "./wbs/wbsAPI";
 import '../../theme/pikaday.css';
 import { getMemberListAPI } from "./member/memberAPI";
-import { updateTaskAPI } from "./task/taskAPI";
+import { getTaskDscendantsAPI, updateTaskAPI } from "./task/taskAPI";
 import { useToast } from '@chakra-ui/react'
 import { el } from "date-fns/locale";
 import TaskCreateForm from './task/TaskCreateForm';
 import { useDisclosure } from '@chakra-ui/react';
+import { htmlRenderer } from 'handsontable/renderers';
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
+  AlertDialogCloseButton,
+  UnorderedList, ListItem,
+  Button, ButtonGroup, Box, Text
+} from '@chakra-ui/react'
 
 
 // register Handsontable's modules
@@ -22,7 +34,19 @@ const ProjectWBS = ({projectId}) => {
   const hotTableRef = useRef(null);
   const toast = useToast();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isCreateModalOpen,
+    onOpen: onCreateModalOpen,
+    onClose: onCreateModalClose
+  } = useDisclosure();
+
+  const {
+    isOpen: isDelAlertOpen,
+    onOpen: onDelAlertOpen,
+    onClose: onDelAlertClose
+  } = useDisclosure();
+  const [descendants, setDescendants] = useState([]);
+  const cancelRef = useRef()
 
   //화면 표시 용
   const [saturdayCols, setSaturdayCols] = useState([]);
@@ -183,7 +207,11 @@ const ProjectWBS = ({projectId}) => {
           firstDay: 0
         }
       },
-      { data: 'planProgress', readOnly: true },
+      { 
+        data: 'planProgress', 
+        readOnly: true,
+        renderer: percentRenderer
+      },
       { 
         data: 'realStartDt',
         type: 'date',
@@ -204,7 +232,11 @@ const ProjectWBS = ({projectId}) => {
           firstDay: 0
         }
       },
-      { data: 'realProgress', readOnly: true },
+      { 
+        data: 'realProgress', 
+        readOnly: true,
+        renderer: percentRenderer
+      },
       { data: 'weight', type: 'numeric' }
     ]
 
@@ -253,11 +285,7 @@ const ProjectWBS = ({projectId}) => {
           const response = await updateTaskAPI(projectId, data);
           if(response?.data){
             const updated = response.data;
-
-            //Table Row 데이터와 State 데이터 둘다 변경
-            updateTable(updated, row);
-            //TO-DO : State 필요 시 변경해줘야함
-
+            handleTaskUpdate('update', updated);
             toast({
                 title: "수정 완료",
                 description: "TSAKID["+taskId+"] 수정 완료" ,
@@ -283,20 +311,83 @@ const ProjectWBS = ({projectId}) => {
     };
   }
 
-  const updateTable = (updatedTask, row) =>{
-    const hot = hotTableRef.current.hotInstance;
-    const rowIndex = hot.toPhysicalRow(row);
-    hot.setDataAtRowProp(rowIndex, 'taskNm', updatedTask.taskNm, "updated");
-    hot.setDataAtRowProp(rowIndex, 'charge', updatedTask.charge.user.userNm, "updated");
-    hot.setDataAtRowProp(rowIndex, 'partNm', updatedTask.charge.partNm, "updated");
-    hot.setDataAtRowProp(rowIndex, 'planStartDt', updatedTask.planStartDt, "updated");
-    hot.setDataAtRowProp(rowIndex, 'planEndDt', updatedTask.planEndDt, "updated");
-    hot.setDataAtRowProp(rowIndex, 'planProgress', updatedTask.planProgress+"%", "updated");
-    hot.setDataAtRowProp(rowIndex, 'realStartDt', updatedTask.realStartDt, "updated");
-    hot.setDataAtRowProp(rowIndex, 'realEndDt', updatedTask.realEndDt, "updated");
-    hot.setDataAtRowProp(rowIndex, 'realProgress', updatedTask.realProgress+"%", "updated");
-    hot.setDataAtRowProp(rowIndex, 'weight', updatedTask.weight, "updated");
+  const handleTaskUpdate = (type, task) => {
+    switch (type) {
+      case 'create':
+        setWbsData(addWbsData(wbsData, task));
+        break;
+      case 'update':
+        setWbsData(modifyWbsData(wbsData, task));
+        break;
+      case 'delete':
+
+        break;
+      default:
+        console.warn('Unknown task update type:', type);
+    }
   }
+
+  //wbsData state MODIFY 재귀함수
+  const modifyWbsData = (wbsData, updatedTask) => {
+    return wbsData.map(task => {
+      if(task.taskId == updatedTask.taskId){
+        return {...task, ...buildWbsData(updatedTask)};
+      }
+      if(task.__children){
+        return {
+          ...task,
+          __children : modifyWbsData(task.__children, updatedTask)
+        }
+      }
+      return task;
+    })
+  }
+  //wbsData state ADD 재귀함수
+  const addWbsData = (wbsData, createdTask) => {
+    if(createdTask.parentTask.taskId){
+      return wbsData.map(task =>{
+        if(task.taskId == createdTask.parentTask.taskId){
+          return {
+            ...task,
+            __children : [
+              ...(task.__children || []),
+              buildWbsData(createdTask)
+            ]
+          }
+        }
+        if(task.__children){
+          return {
+            ...task,
+            __children : addWbsData(task.__children, createdTask)
+          }
+        }
+        return task;
+      })
+    }else{
+      return [
+        ...wbsData,
+        buildWbsData(createdTask)
+      ]
+    }
+  }
+
+  const buildWbsData = (task) => {
+    return {
+      taskId : task.taskId,
+      depth : task.depth,
+      taskNm : task.taskNm,
+      charge : task.charge.user.userNm,
+      partNm : task.charge.partNm,
+      planStartDt : task.planStartDt,
+      planEndDt : task.planEndDt,
+      planProgress : task.planProgress,
+      realStartDt : task?.realStartDt,
+      realEndDt : task?.realEndDt,
+      realProgress : task?.realProgress,
+      weight : task.weight
+    }
+  }
+
 
   function indentRenderer(instance, td, row, col, prop, value, cellProperties){
     Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -316,6 +407,10 @@ const ProjectWBS = ({projectId}) => {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
     td.style.backgroundColor = '#FFFFFF'; // 여기선 !important 필요 없음
   }
+
+  const percentRenderer = (instance, td, row, col, prop, value, cellProperties) => {
+    htmlRenderer(instance, td, row, col, prop, `${value}%`, cellProperties);
+  };
 
   return (
     wbsData.length > 0 && (
@@ -360,7 +455,7 @@ const ProjectWBS = ({projectId}) => {
         contextMenu={
           {
             items: {
-              'addTask': {
+              addTask: {
                 name: '✔️ 하위 작업 추가',
                 callback: function(key, selection, clickEvent) {
                   const selectedRow = selection[0].start.row;
@@ -370,14 +465,31 @@ const ProjectWBS = ({projectId}) => {
                     parentTaskId : selectedRowData[0],
                   };
                   setTaskInfo(data);
-                  onOpen();
+                  onCreateModalOpen();
                 }
               },
-              'deleteTask': {
+              deleteTask: {
                 name: '❌ 작업 삭제',
-                callback: function(key, selection, clickEvent) {
+                callback : function(key, selection, clickEvent) {
                   const selectedRow = selection[0].start.row;
-                  console.log(selectedRow);
+                  const hot = hotTableRef.current.hotInstance;
+                  const selectedRowData = hot.getDataAtRow(selectedRow);
+                  const taskId = selectedRowData[0];
+                  (async () => {
+                    try {
+                      const dscRes = await getTaskDscendantsAPI(projectId, taskId);
+              
+                      if (dscRes?.data?.length > 1) {
+                        setDescendants(dscRes.data);
+                        onDelAlertOpen();
+                      } else {
+                        // 하위작업 없을 경우 바로 삭제 수행
+                        // await deleteTask(taskId); 등
+                      }
+                    } catch (e) {
+                      console.error("하위 작업 조회 실패", e);
+                    }
+                  })();
                 }
               }
             }
@@ -413,12 +525,48 @@ const ProjectWBS = ({projectId}) => {
         }}
       />
       <TaskCreateForm 
-        isOpen={isOpen} 
-        onOpen={onOpen} 
-        onClose={onClose} 
+        isOpen={isCreateModalOpen} 
+        onOpen={onCreateModalOpen} 
+        onClose={onCreateModalClose} 
         taskInfo={taskInfo}
         memberList={memberList}
+        projectId={projectId}
+        onCreate={handleTaskUpdate}
       />
+      <AlertDialog
+        isOpen={isDelAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onDelAlertClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              작업 삭제
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              삭제 시 하위 작업들도 삭제됩니다.
+              삭제 하시겠습니까 ? 
+              <UnorderedList>
+              {descendants.map((elm, idx)=> {
+                return (
+                  <>
+                  <ListItem key={idx}>{elm.taskNm}</ListItem>
+                  </>
+                )
+              })}
+              </UnorderedList>
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onDelAlertClose}>
+                취소
+              </Button>
+              <Button colorScheme='red' onClick={onDelAlertClose} ml={3}>
+                삭제
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </>
     )
   );

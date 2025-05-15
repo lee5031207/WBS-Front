@@ -14,8 +14,9 @@ import {
 import { AddIcon } from '@chakra-ui/icons';
 import { ko } from 'date-fns/locale';
 import DatePicker from 'react-datepicker';
+import { createTaskAPI } from './taskAPI';
 
-const TaskCreateForm = ({isOpen, onOpen, onClose, taskInfo, memberList}) => {
+const TaskCreateForm = ({isOpen, onOpen, onClose, taskInfo, memberList, projectId, onCreate}) => {
 
     useEffect(() => {
     }, [memberList]);
@@ -23,15 +24,16 @@ const TaskCreateForm = ({isOpen, onOpen, onClose, taskInfo, memberList}) => {
     const toast = useToast();
 
     const [taskNm, setTaskNm] = useState("");
+    const [chargeId, setChargeId] = useState("");
     const [planStartDt, setPlanStartDt] = useState(new Date());
     const [planEndDt, setPlanEndDt] = useState(new Date());
-    const [chargeId, setChargeId] = useState("");
     const [weight, setWeight] = useState("");
     const [remark, setRemark] = useState("");
 
     const closeModal = async() => {
         onClose();
         setTaskNm("");
+        setChargeId("");
         setPlanStartDt(new Date());
         setPlanEndDt(new Date());
         setWeight("");
@@ -71,9 +73,6 @@ const TaskCreateForm = ({isOpen, onOpen, onClose, taskInfo, memberList}) => {
             desc = "가중치는 1 이상 입력 가능합니다.";
         }
 
-        
-        
-
         if(!webCheckFlag){
             toast({
                 title: title,
@@ -84,6 +83,41 @@ const TaskCreateForm = ({isOpen, onOpen, onClose, taskInfo, memberList}) => {
                 position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
             });
             return;
+        }
+
+        try{
+            const response = await createTaskAPI(projectId, {
+                taskNm : taskNm,
+                parentTaskId : taskInfo.parentTaskId,
+                chargeId : chargeId,
+                planStartDt : planStartDt,
+                planEndDt : planEndDt,
+                weight : weight,
+                remark : remark
+            })
+
+            if(response.data){
+                toast({
+                    title: "작업 생성 완료",
+                    description: response.data.taskId+" 생성 완료" ,
+                    status: 'success',
+                    duration: 3000,     // 3초 후 사라짐
+                    isClosable: true,   // 닫기 버튼 있음
+                    position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
+                })
+                onCreate('create', response.data);
+                closeModal();
+            }
+
+        }catch(error){
+            toast({
+                title: "작업 생성 실패",
+                description: error.response.data,
+                status: 'error',
+                duration: 3000,     // 3초 후 사라짐
+                isClosable: true,   // 닫기 버튼 있음
+                position: 'bottom',    // top, top-right, bottom-right 등 설정 가능
+            })
         }
 
 

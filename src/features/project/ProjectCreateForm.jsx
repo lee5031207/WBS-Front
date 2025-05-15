@@ -72,7 +72,6 @@ const ProjectCreateForm = ({ onCreate }) => {
             });
 
             if(response.data){
-                console.log(response.data);
                 toast({
                     title: "프로젝트 생성 완료",
                     description: response.data.projectName+" 생성 완료" ,
