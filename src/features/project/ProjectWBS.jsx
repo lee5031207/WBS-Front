@@ -7,23 +7,12 @@ import 'handsontable/styles/ht-theme-main.css';
 import { getWbsData, getWbsDateInfo } from "./wbs/wbsAPI";
 import '../../theme/pikaday.css';
 import { getMemberListAPI } from "./member/memberAPI";
-import { getTaskDscendantsAPI, updateTaskAPI } from "./task/taskAPI";
-import { useToast } from '@chakra-ui/react'
+import { deleteTaskAPI, getTaskDscendantsAPI, updateTaskAPI } from "./task/taskAPI";
+import { useToast, useDisclosure, Divider, Select, Box, Flex, RadioGroup, Radio, Spacer, Text } from '@chakra-ui/react'
 import { el } from "date-fns/locale";
 import TaskCreateForm from './task/TaskCreateForm';
-import { useDisclosure } from '@chakra-ui/react';
 import { htmlRenderer } from 'handsontable/renderers';
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  AlertDialogCloseButton,
-  UnorderedList, ListItem,
-  Button, ButtonGroup, Box, Text
-} from '@chakra-ui/react'
+import TaskDeleteAlert from "./task/TaskDeleteAlert";
 
 
 // register Handsontable's modules
@@ -56,6 +45,8 @@ const ProjectWBS = ({projectId}) => {
   const [columns, setColumns] = useState([]);
   const [wbsData, setWbsData] = useState([]);
   const [memberList, setMemberList] = useState([]);
+  const [startDt, setStartDt] = useState("");
+  const [endDt, setEndDt] = useState("");
 
   // TaskCreate용
   const [taskInfo, setTaskInfo] = useState({});
@@ -78,6 +69,9 @@ const ProjectWBS = ({projectId}) => {
         if(headerRes.data){
           await setNestedHeaders(headerRes.data);
           await setWeekEndCols(headerRes.data);
+
+          setStartDt(headerRes.data.startDt);
+          setEndDt(headerRes.data.endDt);
 
           if(memberRes.data){
             await setCols(headerRes.data, memberRes.data);
@@ -314,21 +308,21 @@ const ProjectWBS = ({projectId}) => {
   const handleTaskUpdate = (type, task) => {
     switch (type) {
       case 'create':
-        setWbsData(addWbsData(wbsData, task));
+        setWbsData(createWbsData(wbsData, task));
         break;
       case 'update':
-        setWbsData(modifyWbsData(wbsData, task));
+        setWbsData(updateWbsData(wbsData, task));
         break;
       case 'delete':
-
+        setWbsData(deleteWbsData(wbsData, task));
         break;
       default:
         console.warn('Unknown task update type:', type);
     }
   }
 
-  //wbsData state MODIFY 재귀함수
-  const modifyWbsData = (wbsData, updatedTask) => {
+  //wbsData state 수정 재귀함수
+  const updateWbsData = (wbsData, updatedTask) => {
     return wbsData.map(task => {
       if(task.taskId == updatedTask.taskId){
         return {...task, ...buildWbsData(updatedTask)};
@@ -336,14 +330,14 @@ const ProjectWBS = ({projectId}) => {
       if(task.__children){
         return {
           ...task,
-          __children : modifyWbsData(task.__children, updatedTask)
+          __children : updateWbsData(task.__children, updatedTask)
         }
       }
       return task;
     })
   }
-  //wbsData state ADD 재귀함수
-  const addWbsData = (wbsData, createdTask) => {
+  //wbsData state 생성 재귀함수
+  const createWbsData = (wbsData, createdTask) => {
     if(createdTask.parentTask.taskId){
       return wbsData.map(task =>{
         if(task.taskId == createdTask.parentTask.taskId){
@@ -358,7 +352,7 @@ const ProjectWBS = ({projectId}) => {
         if(task.__children){
           return {
             ...task,
-            __children : addWbsData(task.__children, createdTask)
+            __children : createWbsData(task.__children, createdTask)
           }
         }
         return task;
@@ -370,6 +364,21 @@ const ProjectWBS = ({projectId}) => {
       ]
     }
   }
+  //wbsData state 삭제 재귀함수
+  const deleteWbsData = (wbsData, deletedTask) => {
+    return wbsData
+      .filter(task => task.taskId !== deletedTask.taskId) 
+      .map(task => {
+        if (task.__children) {
+          return {
+            ...task,
+            __children: deleteWbsData(task.__children, deletedTask)
+          };
+        }
+        return task;
+      });
+  };
+  
 
   const buildWbsData = (task) => {
     return {
@@ -401,7 +410,7 @@ const ProjectWBS = ({projectId}) => {
   //간트차트 색칠하기
   function highlightRenderer(instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
-    td.style.backgroundColor = '#48A6A7'; // 여기선 !important 필요 없음
+    td.style.backgroundColor = '#788CEF'; // 여기선 !important 필요 없음
   }
   function highlightRemoveRenderer(instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -415,6 +424,41 @@ const ProjectWBS = ({projectId}) => {
   return (
     wbsData.length > 0 && (
     <>
+      <Box m={4}>
+        <Flex gap={4} align="center">
+          <Select placeholder='Select option' size='md' width={150}>
+            <option value='option1'>전체 보기</option>
+            <option value='option2'>내 파트 보기</option>
+            <option value='option3'>내 작업 보기</option>
+          </Select>
+          <RadioGroup defaultValue='plan'>
+            <Flex gap={4}>
+              <Radio 
+                sx={{
+                  '&[data-checked]': {
+                    backgroundColor: '#48A6A7',
+                    borderColor: '#48A6A7',
+                  }
+                }} 
+                value='plan'>
+                  계획
+              </Radio>
+              <Radio 
+                sx={{
+                  '&[data-checked]': {
+                    backgroundColor: '#3847EF',
+                    borderColor: '#3847EF',
+                  }
+                }} 
+                value='real'>
+                  실제
+              </Radio>
+            </Flex>
+          </RadioGroup>
+          <Spacer />
+          <Text>프로젝트 기간 : [ {startDt} ~ {endDt} ] </Text>
+        </Flex>
+      </Box>
       <HotTable
         ref={hotTableRef}
         data={wbsData}
@@ -478,16 +522,26 @@ const ProjectWBS = ({projectId}) => {
                   (async () => {
                     try {
                       const dscRes = await getTaskDscendantsAPI(projectId, taskId);
-              
+                      setDescendants(dscRes.data);
+
                       if (dscRes?.data?.length > 1) {
-                        setDescendants(dscRes.data);
                         onDelAlertOpen();
                       } else {
-                        // 하위작업 없을 경우 바로 삭제 수행
-                        // await deleteTask(taskId); 등
+                        const response = await deleteTaskAPI(projectId, taskId);
+                        if(response.status == 200){
+                          toast({
+                              title: "삭제 완료",
+                              description: "TSAKID["+taskId+"] 삭제 완료" ,
+                              status: 'success',
+                              duration: 1000,     // 3초 후 사라짐
+                              isClosable: true,   // 닫기 버튼 있음
+                              position: 'bottom-right',    // top, top-right, bottom-right 등 설정 가능
+                          })
+                        }
+                        handleTaskUpdate('delete', dscRes.data[0]);
                       }
-                    } catch (e) {
-                      console.error("하위 작업 조회 실패", e);
+                    } catch (error) {
+                      console.error("작업 삭제로직 실행 실패", error);
                     }
                   })();
                 }
@@ -533,40 +587,15 @@ const ProjectWBS = ({projectId}) => {
         projectId={projectId}
         onCreate={handleTaskUpdate}
       />
-      <AlertDialog
+      <TaskDeleteAlert 
         isOpen={isDelAlertOpen}
-        leastDestructiveRef={cancelRef}
+        onOpen={onDelAlertOpen}
         onClose={onDelAlertClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              작업 삭제
-            </AlertDialogHeader>
-            <AlertDialogBody>
-              삭제 시 하위 작업들도 삭제됩니다.
-              삭제 하시겠습니까 ? 
-              <UnorderedList>
-              {descendants.map((elm, idx)=> {
-                return (
-                  <>
-                  <ListItem key={idx}>{elm.taskNm}</ListItem>
-                  </>
-                )
-              })}
-              </UnorderedList>
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onDelAlertClose}>
-                취소
-              </Button>
-              <Button colorScheme='red' onClick={onDelAlertClose} ml={3}>
-                삭제
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+        cancelRef={cancelRef}
+        descendants={descendants}
+        projectId={projectId}
+        onDelete={handleTaskUpdate}
+      />
     </>
     )
   );

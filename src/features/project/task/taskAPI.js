@@ -57,3 +57,21 @@ export const getTaskDscendantsAPI = async (projectId, taskId) => {
         throw error;
     }
 }
+
+export const deleteTaskAPI = async (projectId, taskId) => {
+    try{
+        const response = await axios.delete(`${BASE_URL}/${projectId}/tasks/${taskId}`, {
+            headers:{
+                "Authorization" : token,
+                "Content-Type" : "application/json"
+            }
+        })
+        console.log("=====getTaskDscendantsAPI RESULT=====")
+        console.log(response);
+        console.log("====================")
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
