@@ -1,14 +1,12 @@
 import axios from 'axios';
 import { getToken } from "../../../utils/token";
 
-const token = getToken();
-
 export const createMemberAPI = async (data, projectId) => {
     try{
         const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members`;
         const response = await axios.post(BASE_URL, data, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -27,7 +25,7 @@ export const getMemberListAPI = async (projectId) => {
         const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members`;
         const response = await axios.get(BASE_URL, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -46,7 +44,7 @@ export const getMemberDetailAPI = async (projectId, prjMemId) => {
         const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members/${prjMemId}`;
         const response = await axios.get(BASE_URL, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -65,7 +63,7 @@ export const updateMemberAPI = async (projectId, prjMemId, data) => {
         const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members/${prjMemId}`;
         const response = await axios.patch(BASE_URL, data, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })

@@ -2,13 +2,12 @@ import axios from 'axios';
 import { getToken } from '../../utils/token';
 
 const BASE_URL = 'http://localhost:8081/api/projects';
-const token = getToken();
 
 export const createProjectAPI = async (data) => {
     try{
         const response = await axios.post(BASE_URL, data, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -26,7 +25,7 @@ export const getProjectListAPI = async () => {
     try{
         const response = await axios.get(BASE_URL, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -44,7 +43,7 @@ export const getProjectInfoAPI = async (id) => {
     try{
         const response = await axios.get(`${BASE_URL}/${id}`, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })

@@ -2,13 +2,12 @@ import axios from 'axios';
 import { getToken } from '../../../utils/token';
 
 const BASE_URL = 'http://localhost:8081/api/projects';
-const token = getToken();
 
 export const updateTaskAPI = async (projectId, data) => {
     try{
         const response = await axios.patch(`${BASE_URL}/${projectId}/tasks`, data, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -26,7 +25,7 @@ export const createTaskAPI = async (projectId, data) => {
     try{
         const response = await axios.post(`${BASE_URL}/${projectId}/tasks`, data, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -44,7 +43,7 @@ export const getTaskDscendantsAPI = async (projectId, taskId) => {
     try{
         const response = await axios.get(`${BASE_URL}/${projectId}/tasks/${taskId}/descendants`, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })
@@ -62,7 +61,7 @@ export const deleteTaskAPI = async (projectId, taskId) => {
     try{
         const response = await axios.delete(`${BASE_URL}/${projectId}/tasks/${taskId}`, {
             headers:{
-                "Authorization" : token,
+                "Authorization" : getToken(),
                 "Content-Type" : "application/json"
             }
         })

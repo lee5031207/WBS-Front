@@ -13,6 +13,7 @@ import { el } from "date-fns/locale";
 import TaskCreateForm from './task/TaskCreateForm';
 import { htmlRenderer } from 'handsontable/renderers';
 import TaskDeleteAlert from "./task/TaskDeleteAlert";
+import { Stomp } from "@stomp/stompjs";
 
 
 // register Handsontable's modules
@@ -50,8 +51,46 @@ const ProjectWBS = ({projectId}) => {
 
   // TaskCreate용
   const [taskInfo, setTaskInfo] = useState({});
+
+
+  //WebSocket 용
+  const stompClient = useRef(null);
+  const [connected, setConnected] = useState(false); // 연결 상태 플래그
+
+  const connect = (projectId) => {
+    const socket = new WebSocket("ws://localhost:8081/ws");
+    stompClient.current = Stomp.over(socket);
+    stompClient.current.connect({}, () => {
+      setConnected(true);
+      stompClient.current.subscribe(`/sub/projects/${projectId}`, (message) => {
+        console.log("📨 수신 메시지:", message.body);
+      })
+    })
+  };
+
+  const disconnect = () => {
+    if (stompClient.current && stompClient.current.connected) {
+      stompClient.current.disconnect(() => {
+        console.warn("❌ STOMP 연결 끊음");
+      });
+    }
+  };
+
+  const sendMessage = () => {
+    if (stompClient.current && connected) {
+      stompClient.current.send(`/pub/message`, {}, JSON.stringify(
+        {
+          projectId : projectId,
+          message  : "Message 입니다... 받ㅇㅁㄴㅇ아랏"
+        }
+      ));
+    } else {
+      console.warn("❌ 아직 STOMP 연결 안 됨!");
+    }
+  }
   
   useEffect(() => {
+    connect(projectId);
     const fetchData = async () => {
       try {
         const [headerRes, wbsRes, memberRes] = await Promise.all(
@@ -86,9 +125,12 @@ const ProjectWBS = ({projectId}) => {
         console.error(error);
       }
     };
-  
     fetchData();
-  }, [projectId]);
+    return () => {
+      disconnect();
+    };
+  }
+  , [projectId]);
 
   const setNestedHeaders = async (data) => {
 
@@ -426,7 +468,7 @@ const ProjectWBS = ({projectId}) => {
     <>
       <Box m={4}>
         <Flex gap={4} align="center">
-          <Select placeholder='Select option' size='md' width={150}>
+          <Select placeholder='Select option' size='md' width={150} onChange={sendMessage}>
             <option value='option1'>전체 보기</option>
             <option value='option2'>내 파트 보기</option>
             <option value='option3'>내 작업 보기</option>
