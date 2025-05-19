@@ -11,9 +11,11 @@ export const getWbsDateInfo = async (projectId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getWbsDateInfo RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -29,9 +31,11 @@ export const getWbsData = async (projectId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getWbsData RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);

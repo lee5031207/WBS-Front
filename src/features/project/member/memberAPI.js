@@ -10,9 +10,11 @@ export const createMemberAPI = async (data, projectId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====createMemberAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -29,9 +31,11 @@ export const getMemberListAPI = async (projectId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getMemberListAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -48,9 +52,11 @@ export const getMemberDetailAPI = async (projectId, prjMemId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getMemberDetailAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -67,9 +73,11 @@ export const updateMemberAPI = async (projectId, prjMemId, data) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====updateMemberAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);

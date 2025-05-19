@@ -10,10 +10,12 @@ import { getMemberListAPI } from "./member/memberAPI";
 import { deleteTaskAPI, getTaskDscendantsAPI, updateTaskAPI } from "./task/taskAPI";
 import { useToast, useDisclosure, Divider, Select, Box, Flex, RadioGroup, Radio, Spacer, Text } from '@chakra-ui/react'
 import { el } from "date-fns/locale";
+import WbsHeader from "./wbs/WbsHeader";
 import TaskCreateForm from './task/TaskCreateForm';
-import { htmlRenderer } from 'handsontable/renderers';
 import TaskDeleteAlert from "./task/TaskDeleteAlert";
+import { htmlRenderer } from 'handsontable/renderers';
 import { Stomp } from "@stomp/stompjs";
+import { getMyId } from "../../utils/token";
 
 
 // register Handsontable's modules
@@ -22,6 +24,10 @@ registerAllModules();
 const ProjectWBS = ({projectId}) => {
 
   const hotTableRef = useRef(null);
+  const cancelRef = useRef();
+  const stompClient = useRef(null);
+  const wbsDataRef = useRef([]); 
+
   const toast = useToast();
 
   const {
@@ -36,7 +42,7 @@ const ProjectWBS = ({projectId}) => {
     onClose: onDelAlertClose
   } = useDisclosure();
   const [descendants, setDescendants] = useState([]);
-  const cancelRef = useRef()
+  
 
   //화면 표시 용
   const [saturdayCols, setSaturdayCols] = useState([]);
@@ -46,15 +52,16 @@ const ProjectWBS = ({projectId}) => {
   const [columns, setColumns] = useState([]);
   const [wbsData, setWbsData] = useState([]);
   const [memberList, setMemberList] = useState([]);
+
+  //WbsHeader용
+  const [chartGubun, setChartGubun] = useState("plan");
   const [startDt, setStartDt] = useState("");
   const [endDt, setEndDt] = useState("");
 
   // TaskCreate용
   const [taskInfo, setTaskInfo] = useState({});
 
-
   //WebSocket 용
-  const stompClient = useRef(null);
   const [connected, setConnected] = useState(false); // 연결 상태 플래그
 
   const connect = (projectId) => {
@@ -63,7 +70,12 @@ const ProjectWBS = ({projectId}) => {
     stompClient.current.connect({}, () => {
       setConnected(true);
       stompClient.current.subscribe(`/sub/projects/${projectId}`, (message) => {
-        console.log("📨 수신 메시지:", message.body);
+        if(message.body){
+          const payload = JSON.parse(message.body);
+          if(payload.logonId != getMyId()){
+            handleTaskUpdate(payload.type.toLowerCase(), payload.task);
+          }
+        }
       })
     })
   };
@@ -76,19 +88,6 @@ const ProjectWBS = ({projectId}) => {
     }
   };
 
-  const sendMessage = () => {
-    if (stompClient.current && connected) {
-      stompClient.current.send(`/pub/message`, {}, JSON.stringify(
-        {
-          projectId : projectId,
-          message  : "Message 입니다... 받ㅇㅁㄴㅇ아랏"
-        }
-      ));
-    } else {
-      console.warn("❌ 아직 STOMP 연결 안 됨!");
-    }
-  }
-  
   useEffect(() => {
     connect(projectId);
     const fetchData = async () => {
@@ -119,6 +118,7 @@ const ProjectWBS = ({projectId}) => {
 
         if(wbsRes.data){
           await setWbsData(wbsRes.data);
+          wbsDataRef.current = wbsRes.data;
         }
 
       } catch (error) {
@@ -259,7 +259,7 @@ const ProjectWBS = ({projectId}) => {
         }
       },
       { 
-        data: 'realEndtDt',
+        data: 'realEndDt',
         type: 'date',
         dateFormat: 'YYYY-MM-DD',
         correctFormat: true,
@@ -311,6 +311,12 @@ const ProjectWBS = ({projectId}) => {
             taskId : taskId,
             chargeId : prjMemId
           }
+        }else if(prop == "realEndDt"){
+          data = {
+            taskId : taskId,
+            [prop] : newValue,
+            realStartDt : visibleRowData[8]
+          }
         }else{
           data = {
             taskId : taskId,
@@ -350,13 +356,16 @@ const ProjectWBS = ({projectId}) => {
   const handleTaskUpdate = (type, task) => {
     switch (type) {
       case 'create':
-        setWbsData(createWbsData(wbsData, task));
+        setWbsData(createWbsData(wbsDataRef.current, task));
+        wbsDataRef.current = createWbsData(wbsDataRef.current, task);
         break;
       case 'update':
-        setWbsData(updateWbsData(wbsData, task));
+        setWbsData(updateWbsData(wbsDataRef.current, task));
+        wbsDataRef.current = updateWbsData(wbsDataRef.current, task);
         break;
       case 'delete':
-        setWbsData(deleteWbsData(wbsData, task));
+        setWbsData(deleteWbsData(wbsDataRef.current, task));
+        wbsDataRef.current = deleteWbsData(wbsDataRef.current, task);
         break;
       default:
         console.warn('Unknown task update type:', type);
@@ -452,7 +461,12 @@ const ProjectWBS = ({projectId}) => {
   //간트차트 색칠하기
   function highlightRenderer(instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
-    td.style.backgroundColor = '#788CEF'; // 여기선 !important 필요 없음
+    if(chartGubun === 'plan'){
+      td.style.backgroundColor = '#48A6A7'; // 여기선 !important 필요 없음
+    }else if(chartGubun === 'real'){
+      td.style.backgroundColor = '#788CEF'; // 여기선 !important 필요 없음
+    }
+    
   }
   function highlightRemoveRenderer(instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -466,41 +480,12 @@ const ProjectWBS = ({projectId}) => {
   return (
     wbsData.length > 0 && (
     <>
-      <Box m={4}>
-        <Flex gap={4} align="center">
-          <Select placeholder='Select option' size='md' width={150} onChange={sendMessage}>
-            <option value='option1'>전체 보기</option>
-            <option value='option2'>내 파트 보기</option>
-            <option value='option3'>내 작업 보기</option>
-          </Select>
-          <RadioGroup defaultValue='plan'>
-            <Flex gap={4}>
-              <Radio 
-                sx={{
-                  '&[data-checked]': {
-                    backgroundColor: '#48A6A7',
-                    borderColor: '#48A6A7',
-                  }
-                }} 
-                value='plan'>
-                  계획
-              </Radio>
-              <Radio 
-                sx={{
-                  '&[data-checked]': {
-                    backgroundColor: '#3847EF',
-                    borderColor: '#3847EF',
-                  }
-                }} 
-                value='real'>
-                  실제
-              </Radio>
-            </Flex>
-          </RadioGroup>
-          <Spacer />
-          <Text>프로젝트 기간 : [ {startDt} ~ {endDt} ] </Text>
-        </Flex>
-      </Box>
+      <WbsHeader 
+        projectId={projectId}
+        startDt={startDt}
+        endDt={endDt}
+        onChangeRadio={setChartGubun}
+      />
       <HotTable
         ref={hotTableRef}
         data={wbsData}
@@ -606,15 +591,25 @@ const ProjectWBS = ({projectId}) => {
           }
 
           //2. WBS 날짜 색칠 
-          //TO-DO : 계획, 실제 RADIO 버튼 생성
           const dateCol = columns[col]?.data;
           const planStart = rowData.planStartDt;
           const planEnd = rowData.planEndDt;
+          const realStart = rowData.realStartDt;
+          const realEnd = rowData.realEndDt;
+          
           if (/\d{4}-\d{2}-\d{2}/.test(dateCol)) {
-            if (dateCol >= planStart && dateCol <= planEnd) {
-              cellProperties.renderer = highlightRenderer;
-            }else{
-              cellProperties.renderer = highlightRemoveRenderer;
+            if(chartGubun === 'plan'){
+              if (dateCol >= planStart && dateCol <= planEnd) {
+                cellProperties.renderer = highlightRenderer;
+              }else{
+                cellProperties.renderer = highlightRemoveRenderer;
+              }
+            }else if(chartGubun === 'real'){
+              if (dateCol >= realStart && dateCol <= realEnd) {
+                cellProperties.renderer = highlightRenderer;
+              }else{
+                cellProperties.renderer = highlightRemoveRenderer;
+              }
             }
           }
           return cellProperties;

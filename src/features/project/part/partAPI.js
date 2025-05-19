@@ -10,9 +10,11 @@ export const createPartAPI = async (data, projectId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====createPartAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -29,9 +31,11 @@ export const getPartListAPI = async (projectId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getPartListAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -48,9 +52,11 @@ export const getPartDetailAPI = async (projectId, partId) =>{
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getPartDetailAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);

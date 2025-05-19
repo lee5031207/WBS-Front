@@ -11,9 +11,11 @@ export const updateTaskAPI = async (projectId, data) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====updateTaskAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -29,9 +31,11 @@ export const createTaskAPI = async (projectId, data) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====createTaskAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -47,9 +51,11 @@ export const getTaskDscendantsAPI = async (projectId, taskId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getTaskDscendantsAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
@@ -65,9 +71,11 @@ export const deleteTaskAPI = async (projectId, taskId) => {
                 "Content-Type" : "application/json"
             }
         })
+        /*
         console.log("=====getTaskDscendantsAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);

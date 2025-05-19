@@ -12,9 +12,31 @@ export const searchUserAPI = async (params) => {
                 "Content-Type" : "application/json"
             }
         })
-        console.log("=====API RESULT=====")
+        /*
+        console.log("=====searchUserAPI RESULT=====")
         console.log(response);
         console.log("====================")
+        */
+        return response;
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+}
+
+export const getUserAPI = async (id) => {
+    try{
+        const response = await axios.get(`${BASE_URL}/${id}`, {
+            headers:{
+                "Authorization" : getToken(),
+                "Content-Type" : "application/json"
+            }
+        })
+        /*
+        console.log("=====getUserAPI RESULT=====")
+        console.log(response);
+        console.log("====================")
+        */
         return response;
     }catch(error){
         console.log(error);
