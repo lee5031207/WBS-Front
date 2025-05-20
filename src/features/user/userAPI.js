@@ -1,17 +1,10 @@
-import axios from 'axios';
-import { getToken } from '../../utils/token';
-
-const BASE_URL = 'http://localhost:8081/api/users';
+import wbsAxios from '../../utils/wbsAxios';
 
 export const searchUserAPI = async (params) => {
     try{
-        const response = await axios.get(BASE_URL, {
-            params : params,
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.get('/api/users', {
+            params : params
+        });
         /*
         console.log("=====searchUserAPI RESULT=====")
         console.log(response);
@@ -26,12 +19,7 @@ export const searchUserAPI = async (params) => {
 
 export const getUserAPI = async (id) => {
     try{
-        const response = await axios.get(`${BASE_URL}/${id}`, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.get(`/api/users/${id}`);
         /*
         console.log("=====getUserAPI RESULT=====")
         console.log(response);

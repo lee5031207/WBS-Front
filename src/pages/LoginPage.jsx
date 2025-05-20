@@ -21,7 +21,7 @@ const LoginPage = () => {
     // 로그인 로직 (API 호출 등)
     try {
       
-      const response = await axios.post("http://localhost:8081/api/login",{
+      const response = await axios.post("http://localhost:8081/api/auth/login",{
         loginId : loginId,
         pwd : password,
       });

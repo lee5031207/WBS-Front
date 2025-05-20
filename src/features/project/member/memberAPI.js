@@ -1,15 +1,8 @@
-import axios from 'axios';
-import { getToken } from "../../../utils/token";
+import wbsAxios from '../../../utils/wbsAxios';
 
 export const createMemberAPI = async (data, projectId) => {
     try{
-        const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members`;
-        const response = await axios.post(BASE_URL, data, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.post(`/api/projects/${projectId}/members`, data);
         /*
         console.log("=====createMemberAPI RESULT=====")
         console.log(response);
@@ -24,13 +17,7 @@ export const createMemberAPI = async (data, projectId) => {
 
 export const getMemberListAPI = async (projectId) => {
     try{
-        const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members`;
-        const response = await axios.get(BASE_URL, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.get(`/api/projects/${projectId}/members`);
         /*
         console.log("=====getMemberListAPI RESULT=====")
         console.log(response);
@@ -45,13 +32,7 @@ export const getMemberListAPI = async (projectId) => {
 
 export const getMemberDetailAPI = async (projectId, prjMemId) => {
     try{
-        const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members/${prjMemId}`;
-        const response = await axios.get(BASE_URL, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.get(`/api/projects/${projectId}/members/${prjMemId}`);
         /*
         console.log("=====getMemberDetailAPI RESULT=====")
         console.log(response);
@@ -66,13 +47,7 @@ export const getMemberDetailAPI = async (projectId, prjMemId) => {
 
 export const updateMemberAPI = async (projectId, prjMemId, data) => {
     try{
-        const BASE_URL = `http://localhost:8081/api/projects/${projectId}/members/${prjMemId}`;
-        const response = await axios.patch(BASE_URL, data, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.patch(`/api/projects/${projectId}/members/${prjMemId}`, data);
         /*
         console.log("=====updateMemberAPI RESULT=====")
         console.log(response);

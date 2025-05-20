@@ -1,16 +1,8 @@
-import axios from 'axios';
-import { getToken } from '../../utils/token';
-
-const BASE_URL = 'http://localhost:8081/api/projects';
+import wbsAxios from '../../utils/wbsAxios';
 
 export const createProjectAPI = async (data) => {
     try{
-        const response = await axios.post(BASE_URL, data, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.post('/api/projects', data);
         /*
         console.log("=====createProjectAPI RESULT=====")
         console.log(response);
@@ -25,12 +17,7 @@ export const createProjectAPI = async (data) => {
 
 export const getProjectListAPI = async () => {
     try{
-        const response = await axios.get(BASE_URL, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.get('/api/projects');
         /*
         console.log("=====getProjectListAPI RESULT=====")
         console.log(response);
@@ -45,12 +32,7 @@ export const getProjectListAPI = async () => {
 
 export const getProjectInfoAPI = async (id) => {
     try{
-        const response = await axios.get(`${BASE_URL}/${id}`, {
-            headers:{
-                "Authorization" : getToken(),
-                "Content-Type" : "application/json"
-            }
-        })
+        const response = await wbsAxios.get(`/api/projects/${id}`);
         /*
         console.log("=====getProjectInfoAPI RESULT=====")
         console.log(response);
