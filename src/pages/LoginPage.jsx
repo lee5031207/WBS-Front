@@ -24,11 +24,13 @@ const LoginPage = () => {
       const response = await axios.post("http://localhost:8081/api/auth/login",{
         loginId : loginId,
         pwd : password,
+      },{
+        withCredentials: true
       });
 
       localStorage.setItem('WBS_GRANT_TYPE', response.data.grantType);
       localStorage.setItem('WBS_ACCESS_TOKEN', response.data.accessToken);
-      localStorage.setItem('WBS_REFRESH_TOKEN', response.data.refreshToken);
+      //localStorage.setItem('WBS_REFRESH_TOKEN', response.data.refreshToken);
 
       console.log("로그인 성공");
       navigate("/");
