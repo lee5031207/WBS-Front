@@ -20,6 +20,7 @@ import { useState, useEffect } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { getDecodedToken } from "../../utils/token";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const MyInfoModal = () => {
 
@@ -37,11 +38,11 @@ const MyInfoModal = () => {
     }, []);
 
 
-    const logout = () => {
+    const logout = async () => {
         onClose();
         localStorage.removeItem('WBS_GRANT_TYPE');
         localStorage.removeItem('WBS_ACCESS_TOKEN');
-        localStorage.removeItem('WBS_REFRESH_TOKEN');
+        await axios.post("http://localhost:8081/api/auth/logout");
         navigate("/login");
     }
 
