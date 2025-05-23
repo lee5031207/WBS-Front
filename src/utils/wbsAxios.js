@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken } from './token';
 
 const wbsAxios = axios.create({
-    baseURL : 'http://localhost:8081',
+    baseURL : '',
     headers : {
         "Content-Type" : "application/json"
     }
@@ -26,7 +26,7 @@ async (error) => {
     if(error.response.status === 401 && !originalRequest._retry){
         originalRequest._retry = true;
         try{
-            const res = await axios.post("http://localhost:8081/api/auth/refresh",{},{
+            const res = await axios.post("/api/auth/refresh",{},{
                 withCredentials: true
             });
             localStorage.setItem('WBS_GRANT_TYPE', res.data.grantType);

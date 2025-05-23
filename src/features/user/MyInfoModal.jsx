@@ -42,7 +42,7 @@ const MyInfoModal = () => {
         onClose();
         localStorage.removeItem('WBS_GRANT_TYPE');
         localStorage.removeItem('WBS_ACCESS_TOKEN');
-        await axios.post("http://localhost:8081/api/auth/logout");
+        await axios.post("/api/auth/logout");
         navigate("/login");
     }
 
