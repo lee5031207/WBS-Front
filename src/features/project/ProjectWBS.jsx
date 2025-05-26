@@ -65,7 +65,7 @@ const ProjectWBS = ({projectId}) => {
   const [connected, setConnected] = useState(false); // 연결 상태 플래그
 
   const connect = (projectId) => {
-    const socket = new WebSocket("ws://localhost:8081/ws");
+    const socket = new WebSocket(process.env.REACT_APP_WS_URL);
     stompClient.current = Stomp.over(socket);
     stompClient.current.connect({}, () => {
       setConnected(true);
