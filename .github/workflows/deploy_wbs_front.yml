@@ -1,0 +1,26 @@
+# https://tech.kakaoent.com/front-end/2022/220106-github-actions/
+# https://github.com/actions 👈여기서 actions 확인 가능
+
+name: "deploy_wbs_front"
+
+# main 브랜치에 push 될 때마다 실행됨
+on:
+  push:
+    branched: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✔ 소스 체크아웃
+        uses: actions/checkout@v4
+
+      - name: ✔ Node.js(v22.14.0) 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+      - name: ✔ npm 의존성 설치 및 빌드
+        run: |
+          npm install
+          npm run build
