@@ -31,13 +31,18 @@ jobs:
     needs: build
 
     steps:
+      - name: 🔒 SSH key 파일 생성
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
+          chmod 600 ec2_key.pem
+
       - name: 🔒 Copy files to EC2
         run: |
-          scp -i ${{ secrets.EC2_SSH_KEY }} -r ./build ubuntu@${{ secrets.EC2_HOST }}:/app/frontend/
+          scp -i ec2_key.pem -o StrictHostKeyChecking=no -r ./build ubuntu@${{ secrets.EC2_HOST }}:/app/frontend/
 
       - name: 🔒 nginx reload 실행 처리
         run: |
-          ssh -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -i ec2_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
             sudo chmod -R 775 /app/frontend/build
             sudo systemctl restart nginx
           EOF
