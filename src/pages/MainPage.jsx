@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import ProjectInfo from "../features/project/ProjectInfo";
 import ProjectWBS from "../features/project/ProjectWBS"; 
 
-const MainPage = ({}) => {
+const MainPage = () => {
 
     const [tabState, setTabState] = useState(0);
     const { id: projectId } = useParams();
