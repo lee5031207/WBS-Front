@@ -75,7 +75,7 @@ const LoginPage = () => {
           {error && <Text color="red.500" fontSize="sm">{error}</Text>}
 
           <Button bg="brand.200" color="white" _hover={{ bg: 'brand.300' }} onClick={handleLogin}>
-            로그인
+            로그인(GitHub Actions 테스트)
           </Button>
         </Stack>
       </Box>

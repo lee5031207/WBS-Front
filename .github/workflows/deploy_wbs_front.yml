@@ -26,8 +26,19 @@ jobs:
           npm install
           npm run build
 
-      - name: ✔ 빌드 결과물 Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wbs-front-build
-          path: ./build/
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: 🔒 Copy files to EC2
+        run: |
+          scp -i ${{ secrets.EC2_SSH_KEY }} -r ./build ubuntu@${{ secrets.EC2_HOST }}:/app/frontend/
+
+    steps:
+      - name: 🔒 nginx reload 실행 처리
+        run: |
+          ssh -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo chmod -R 775 /app/frontend/build
+            sudo systemctl restart nginx
+          EOF
