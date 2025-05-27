@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { getToken } from "../../../utils/token";
 import wbsAxios from "../../../utils/wbsAxios";
 
 export const createPartAPI = async (data, projectId) => {

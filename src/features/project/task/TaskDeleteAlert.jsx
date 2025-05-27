@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import {
     AlertDialog,
-    AlertDialogBody,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogContent,
-    AlertDialogOverlay,
-    AlertDialogCloseButton,
-    UnorderedList, ListItem,
-    Button, ButtonGroup, Box, Text,
+    AlertDialogBody, AlertDialogContent, AlertDialogFooter,
+    AlertDialogHeader, AlertDialogOverlay, Button, Text,
     useToast
-  } from '@chakra-ui/react'
+} from '@chakra-ui/react';
+import React, { useEffect } from 'react';
 import { deleteTaskAPI } from './taskAPI';
 
 const TaskDeleteAlert = ({isOpen, onOpen, onClose, cancelRef, descendants, projectId, onDelete}) => {

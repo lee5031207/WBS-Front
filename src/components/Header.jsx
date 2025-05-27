@@ -1,8 +1,4 @@
-import { 
-    Flex, Heading, Divider ,Spacer, Text, Center, Square, Box,
-    Avatar, AvatarBadge, AvatarGroup 
-} from '@chakra-ui/react';
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react'
+import { Box, Flex, Spacer, Tab, TabList, Tabs } from '@chakra-ui/react';
 import ProjectList from '../features/project/ProjectList';
 import MyInfo from '../features/user/MyInfoModal';
 

@@ -1,16 +1,10 @@
-import React, { useState } from 'react';
-import { Card, CardHeader, CardBody, CardFooter, Heading, 
-    Stack, StackDivider, Box, Text, ListItem, List, ListIcon, Flex ,
-    FormControl, FormLabel, FormHelperText, useToast,
-    Button, useDisclosure,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton, Input} from '@chakra-ui/react'
 import { AddIcon } from "@chakra-ui/icons";
+import {
+    Button, FormControl, FormLabel, Input, Modal, ModalBody,
+    ModalCloseButton, ModalContent,
+    ModalHeader, ModalOverlay, Stack, useDisclosure, useToast
+} from '@chakra-ui/react';
+import React, { useState } from 'react';
 import { createPartAPI } from './partAPI';
 const PartCreateForm = ({projectId, onCreate}) => {
 

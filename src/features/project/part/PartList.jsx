@@ -1,18 +1,6 @@
-import { Card, CardHeader, CardBody, CardFooter, Heading, 
-    Stack, StackDivider, Box, Text, ListItem, List, ListIcon, Flex ,
-    Button} from '@chakra-ui/react'
-import { useState, useEffect } from "react";
-import { DeleteIcon, AddIcon } from "@chakra-ui/icons";
-import { MdCheckCircle, MdSettings, MdOutlineSell } from "react-icons/md";
-import {
-    Accordion,
-    AccordionItem,
-    AccordionButton,
-    AccordionPanel,
-    AccordionIcon,
-  } from '@chakra-ui/react'
+import { Accordion, AccordionButton, AccordionIcon, AccordionItem, AccordionPanel, Box, Card, CardHeader, Flex, Heading } from '@chakra-ui/react';
+import { getPartListAPI } from './partAPI';
 import PartCreateForm from './PartCreateForm';
-import { getPartListAPI, getPartDetailAPI } from './partAPI';
 
 const PartList = ({ parts, onCreatePart, projectId }) => {
     

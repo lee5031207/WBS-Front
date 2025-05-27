@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import './App.css';
+import PrivateRoute from "./components/PrivateRoute";
 import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/MainPage";
-import PrivateRoute from "./components/PrivateRoute";
-import './App.css';
 
 function App() {
   return (

@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
-import { Card, CardHeader, Flex, Heading, Accordion, AccordionItem, AccordionButton, Box, AccordionIcon, AccordionPanel } from '@chakra-ui/react';
-import MemberCreateForm from "./MemberCreateForm";
-import { getMemberListAPI } from "./memberAPI";
+import { Accordion, AccordionButton, AccordionItem, Card, CardHeader, Flex, Heading } from '@chakra-ui/react';
 import { getPartListAPI } from "../part/partAPI";
+import { getMemberListAPI } from "./memberAPI";
+import MemberCreateForm from "./MemberCreateForm";
 import MemberInfo from "./MemberInfo";
 
 const MemberList = ({ members, onCreateMember, onUpdateMember, projectId }) => {

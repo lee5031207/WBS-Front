@@ -1,11 +1,10 @@
+import { Box, Card, CardBody, CardHeader, Flex, Heading, Table, TableCaption, TableContainer, Tbody, Td, Tr } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import PartList from "./part/PartList";
-import MemberList from "./member/MemberList";
-import { getProjectInfoAPI } from "./projectAPI";
-import { Flex, Box, Card, CardHeader, Heading, CardBody, TableContainer, Table, TableCaption, Tbody,
-  Tr, Td } from "@chakra-ui/react"; 
-import { getPartListAPI } from "./part/partAPI";
 import { getMemberListAPI } from "./member/memberAPI";
+import MemberList from "./member/MemberList";
+import { getPartListAPI } from "./part/partAPI";
+import PartList from "./part/PartList";
+import { getProjectInfoAPI } from "./projectAPI";
 
 const ProjectInfo = ({projectId}) => {
 

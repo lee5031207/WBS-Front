@@ -1,26 +1,12 @@
-import { 
-    Card, CardHeader, CardBody, CardFooter,
-    Flex, Avatar, Heading, Text, IconButton, UnorderedList, ListItem, ListIcon, List, useToast,
-    useDisclosure, Box, Modal, ModalContent, ModalOverlay, ModalHeader, ModalCloseButton, ModalBody,
-    Table,
-    Thead,
-    Tbody,
-    Tfoot,
-    Tr,
-    Th,
-    Td,
-    TableCaption,
-    TableContainer,
-    Select,
-    Button
+import {
+    Avatar, Box, Button, Card, CardBody, CardFooter, CardHeader, Flex, Heading, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Select, Table, TableCaption,
+    TableContainer, Tbody, Td, Text, Tfoot, Thead, Tr, useDisclosure, useToast
 } from "@chakra-ui/react";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { BiLike, BiChat, BiShare } from "react-icons/bi";
-import { MdCheckCircle, MdSettings, MdOutlineSell } from "react-icons/md";
 import { useState } from "react";
-import { getMemberDetailAPI, updateMemberAPI } from "./memberAPI";
-import { getProjectRoles, getProjectRoleKR } from "../../../utils/commonUtils";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { getProjectRoleKR, getProjectRoles } from "../../../utils/commonUtils";
 import { getPartListAPI } from "../part/partAPI";
+import { getMemberDetailAPI, updateMemberAPI } from "./memberAPI";
 
 const MemberInfo = ( {userNm, teamNm, projectId, prjMemId, onUpdate} ) => {
 

@@ -1,26 +1,12 @@
-import { 
-    Card, CardHeader, CardBody, CardFooter,
-    Flex, Avatar, Heading, Text, IconButton, UnorderedList, ListItem, ListIcon, List, useToast,
-    useDisclosure, Box, Modal, ModalContent, ModalOverlay, ModalHeader, ModalCloseButton, ModalBody,
-    Table,
-    Thead,
-    Tbody,
-    Tfoot,
-    Tr,
-    Th,
-    Td,
-    TableCaption,
-    TableContainer,
-    Select,
-    Button,
-    AvatarGroup,
-    ModalFooter
+import {
+    Avatar, AvatarGroup, Box, Button, Card, CardBody, CardHeader, Flex, Heading, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableCaption,
+    TableContainer, Tbody, Td, Text, Tfoot, Thead, Tr, useDisclosure
 } from "@chakra-ui/react";
-import { useState, useEffect } from "react";
-import { BsThreeDotsVertical } from "react-icons/bs";
-import { getDecodedToken } from "../../utils/token";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import { getDecodedToken } from "../../utils/token";
 
 const MyInfoModal = () => {
 

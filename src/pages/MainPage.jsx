@@ -1,10 +1,9 @@
-import React from "react";
-import { useState } from "react";
-import Header from "../components/Header";
-import { Divider, Box, Text } from '@chakra-ui/react';
+import { Box, Divider, Text } from '@chakra-ui/react';
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import Header from "../components/Header";
 import ProjectInfo from "../features/project/ProjectInfo";
-import ProjectWBS from "../features/project/ProjectWBS"; 
+import ProjectWBS from "../features/project/ProjectWBS";
 
 const MainPage = () => {
 
