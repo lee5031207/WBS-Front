@@ -26,11 +26,23 @@ jobs:
           npm install
           npm run build
 
+      - name: 📦 빌드 파일 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: wbs-build
+          path: ./build
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
+      - name: 📥 빌드 파일 다운로드
+        uses: actions/download-artifact@v4
+        with:
+          name: wbs-build
+          path: ./build
+
       - name: 🔒 SSH key 파일 생성
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > ec2_key.pem
